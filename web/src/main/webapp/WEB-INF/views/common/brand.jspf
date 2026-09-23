@@ -1,0 +1,15 @@
+<%--
+  The United Way x C3S.ai bar across the top of the giving page and the dashboard.
+  Declare before including:  boolean brandSticky   String brandLabel (plain text, escaped here)
+--%>
+<div class="cobrand-bar<%= brandSticky ? " is-sticky" : "" %>">
+    <div class="cb-left">
+        <div class="uw-logo-wrap">
+            <div class="uw-circle"><div class="uw-circle-inner"></div></div>
+            <div class="uw-name">United Way<small>NORTHEAST FLORIDA</small></div>
+        </div>
+        <div class="cb-div"></div>
+        <span class="c3s-sm">C3S<span>.ai</span></span>
+    </div>
+    <div class="cb-right"><%= com.c3s.ai.core.web.HtmlUtil.esc(brandLabel) %></div>
+</div>

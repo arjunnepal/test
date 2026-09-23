@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>C3S.ai Giving Platform</display-name>
+
+    <!--
+      Servlets are annotation-mapped. This file covers what annotations can't: the filter
+      order, session cookie hardening and container-level error pages, so no raw stack trace or
+      default error page ever reaches the browser. 404s bounce back to whichever half of the
+      app they were aimed at (see NotFoundServlet) rather than showing an error.
+    -->
+
+    <!--
+      Filters run in the order of their filter-mapping elements below. Annotation order isn't
+      defined (it follows how classes happen to sit in the jar), so they're declared here:
+        1. MdcFilter             request id and user on every log line, including the others'
+        2. SecurityHeadersFilter headers on every response, including AuthFilter's redirects and 403s
+        3. EncodingFilter        UTF-8 before anything reads a parameter (AuthFilter reads _csrf)
+        4. AuthFilter            CSRF, sign-in and role checks
+    -->
+    <filter>
+        <filter-name>MdcFilter</filter-name>
+        <filter-class>com.c3s.ai.core.servlet.MdcFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>SecurityHeadersFilter</filter-name>
+        <filter-class>com.c3s.ai.core.servlet.SecurityHeadersFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>EncodingFilter</filter-name>
+        <filter-class>com.c3s.ai.core.servlet.EncodingFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>com.c3s.ai.core.servlet.AuthFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>MdcFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>SecurityHeadersFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>EncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <session-config>
+        <!--
+          The backstop under the per-scope idle limits in AuthSession: the admin scope gives
+          up after 15 idle minutes and the donor scope after 30, both tracked per scope so
+          sitting on the public page can't hold an admin session open.
+        -->
+        <session-timeout>30</session-timeout>
+        <cookie-config>
+            <http-only>true</http-only>
+            <!-- Secure is set programmatically (see AppLifecycleListener): on unless
+                 session.cookie.secure=false, which only local plain-HTTP development should use.
+                 Lax, not Strict, so a donor arriving from a shared link stays signed in. -->
+            <attribute>
+                <attribute-name>SameSite</attribute-name>
+                <attribute-value>Lax</attribute-value>
+            </attribute>
+        </cookie-config>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/not-found</location>
+    </error-page>
+
+    <error-page>
+        <error-code>403</error-code>
+        <location>/WEB-INF/views/common/error.jsp</location>
+    </error-page>
+
+    <!-- e.g. POST /, instead of Tomcat's default page -->
+    <error-page>
+        <error-code>405</error-code>
+        <location>/WEB-INF/views/common/error.jsp</location>
+    </error-page>
+
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/views/common/error.jsp</location>
+    </error-page>
+
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/WEB-INF/views/common/error.jsp</location>
+    </error-page>
+
+</web-app>

@@ -1,0 +1,15 @@
+<%--
+  The <head> contents every page shares. Declare before including:
+    String ctx          request.getContextPath()
+    String pageTitle    plain text, escaped here
+    String[] scripts    files under /js, in load order (core.js first when there are any)
+--%>
+<%@ page import="com.c3s.ai.core.web.Assets, com.c3s.ai.core.web.HtmlUtil" %>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><%= HtmlUtil.esc(pageTitle) %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&amp;family=Palanquin:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="<%= ctx %>/css/app.css?v=<%= Assets.VERSION %>"/>
+<% for (String script : scripts) { %>
+    <script src="<%= ctx %>/js/<%= HtmlUtil.esc(script) %>?v=<%= Assets.VERSION %>" defer="defer"></script>
+<% } %>

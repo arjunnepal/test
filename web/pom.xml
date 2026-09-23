@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.c3s.ai</groupId>
+        <artifactId>donation</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>donation-web</artifactId>
+    <name>donation-web</name>
+    <packaging>war</packaging>
+    <description>The deployable app: JSPs, CSS and JS for both sides, packaged with every module into ROOT.war.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.c3s.ai</groupId>
+            <artifactId>donation-browse</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.c3s.ai</groupId>
+            <artifactId>donation-admin</artifactId>
+        </dependency>
+        <!-- the JSPs are compiled by Tomcat (and by build/verify-jsps.sh), not by Maven, so
+             the servlet and JSP APIs aren't needed here -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- ROOT so the app owns the context root: giving page at /, dashboard at /admin.
+             Every link is still built from request.getContextPath(), so a deploy under
+             some other context path works too. -->
+        <finalName>ROOT</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!-- keep local credentials out of the WAR -->
+                    <packagingExcludes>WEB-INF/classes/db.properties</packagingExcludes>
+                </configuration>
+            </plugin>
+
+            <!-- At verify: precompile every JSP with Jasper against the packaged WAR's classes and
+                 jars, so a scriptlet error fails the build (needs CATALINA_HOME, skips without),
+                 and fail on any document.write(). See ../build/. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>precompile-jsps</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <exec executable="bash" failonerror="true">
+                                    <arg value="${project.basedir}/../build/verify-jsps.sh"/>
+                                    <arg value="${project.basedir}/src/main/webapp"/>
+                                    <arg value="${project.build.directory}/${project.build.finalName}/WEB-INF"/>
+                                    <arg value="${project.build.directory}/jspc-verify"/>
+                                    <env key="MAVEN_REPO" value="${settings.localRepository}"/>
+                                </exec>
+                                <exec executable="bash" failonerror="true">
+                                    <arg value="${project.basedir}/../build/verify-no-markup-in-js.sh"/>
+                                    <arg value="${project.basedir}/src/main/webapp"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

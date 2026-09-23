@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>C3S.ai × United Way NEFL — Give</title>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&family=Palanquin:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --uw-blue:#003F87; --uw-blue-mid:#1A5FAD; --uw-blue-light:#E8EEF7; --uw-blue-pale:#F0F4FB;
+  --uw-red:#BE0000; --uw-red-light:#FAEAEA;
+  --uw-gold:#F5A800; --uw-gold-light:#FEF4DC;
+  --uw-green:#2E7D32; --uw-green-light:#E8F5E9;
+  --uw-purple:#5B2DA8; --uw-purple-light:#F0E8FF;
+  --off-white:#F7F6F2; --cream:#F0EDE5; --dark:#111827;
+  --mid:#374151; --muted:#6B7280; --border:#D1D5DB;
+  --border-light:#E5E7EB; --white:#FFFFFF;
+  --pp-blue:#003087; --pp-cyan:#009cde; --pp-gold:#FFC439;
+  --sidebar-w:252px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{font-family:'Palanquin',sans-serif;background:var(--off-white);color:var(--dark);min-height:100vh;}
+.page{display:none;min-height:100vh;} .page.active{display:block;}
+
+/* ── COBRAND BAR ── */
+.cobrand-bar{background:var(--uw-blue);padding:0 2.5rem;height:50px;display:flex;align-items:center;justify-content:space-between;}
+.cb-left{display:flex;align-items:center;gap:16px;}
+.uw-logo-wrap{display:flex;align-items:center;gap:9px;}
+.uw-circle{width:32px;height:32px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.uw-circle-inner{width:20px;height:20px;border-radius:50%;background:conic-gradient(var(--uw-red) 0deg 120deg,var(--uw-gold) 120deg 240deg,var(--uw-blue) 240deg 360deg);position:relative;}
+.uw-circle-inner::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;background:white;border-radius:50%;}
+.uw-name{font-family:'Antonio',sans-serif;font-size:12px;font-weight:500;color:white;line-height:1.25;}
+.uw-name small{display:block;font-family:'Palanquin',sans-serif;font-size:9.5px;font-weight:300;color:rgba(255,255,255,.6);letter-spacing:.4px;}
+.cb-div{width:1px;height:26px;background:rgba(255,255,255,.22);}
+.c3s-sm{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;color:white;letter-spacing:-.2px;}
+.c3s-sm span{color:var(--uw-gold);}
+.cb-right{font-size:10.5px;color:rgba(255,255,255,.45);font-family:'Palanquin',sans-serif;letter-spacing:.5px;}
+
+/* ── WEEKLY DONOR TICKER ── */
+.ticker-bar{background:var(--uw-gold);padding:0 2.5rem;height:36px;display:flex;align-items:center;gap:0;overflow:hidden;position:relative;}
+.ticker-label{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;color:var(--dark);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;margin-right:16px;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.ticker-dot{width:7px;height:7px;border-radius:50%;background:var(--uw-red);animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(.85);}}
+.ticker-track{flex:1;overflow:hidden;position:relative;}
+.ticker-inner{display:flex;gap:0;animation:ticker 38s linear infinite;white-space:nowrap;}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.ticker-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--dark);padding:0 28px 0 0;white-space:nowrap;}
+.ticker-item .ti-amt{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;color:var(--uw-blue);}
+.ticker-item .ti-sep{color:rgba(0,0,0,.25);}
+
+/* ── NAV ── */
+nav{background:var(--white);border-bottom:2px solid var(--uw-blue-light);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,63,135,.07);}
+.nav-logo{font-family:'Antonio',sans-serif;font-size:21px;font-weight:700;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:6px;}
+.nav-logo span{color:var(--uw-blue);}
+.nav-pipe{color:var(--border);font-weight:300;}
+.nav-uw{font-size:13px;font-weight:500;color:var(--uw-blue);margin-left:2px;}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+.nav-admin{font-size:13px;padding:6px 14px;border:1.5px solid var(--uw-blue);border-radius:8px;cursor:pointer;background:transparent;color:var(--uw-blue);font-family:'Palanquin',sans-serif;font-weight:500;transition:all .15s;}
+.nav-admin:hover{background:var(--uw-blue);color:white;}
+.nav-cta{font-size:13px;padding:6px 14px;border:none;border-radius:8px;cursor:pointer;background:var(--uw-blue);color:white;font-family:'Palanquin',sans-serif;font-weight:600;}
+.breadcrumb{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);}
+.breadcrumb a{color:var(--muted);text-decoration:none;cursor:pointer;} .breadcrumb a:hover{color:var(--uw-blue);}
+.breadcrumb span{color:var(--dark);font-weight:500;}
+.secure-badge{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);font-weight:500;}
+.secure-badge svg{width:13px;height:13px;color:var(--uw-green);}
+
+/* ── STEPS ── */
+.steps{background:var(--white);border-bottom:1px solid var(--border-light);padding:12px 2.5rem;display:flex;align-items:center;justify-content:center;}
+.step-item{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);}
+.step-item.done{color:var(--uw-blue);font-weight:500;} .step-item.active{color:var(--dark);font-weight:600;}
+.step-dot{width:25px;height:25px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;background:var(--white);}
+.step-item.done .step-dot{background:var(--uw-blue);border-color:var(--uw-blue);color:white;font-size:12px;}
+.step-item.active .step-dot{border-color:var(--uw-blue);color:var(--uw-blue);}
+.step-divider{width:55px;height:2px;background:var(--border-light);margin:0 10px;}
+
+
+/* ── shared tag colors ── */
+.te{background:var(--uw-blue-light);color:var(--uw-blue);}
+.th{background:var(--uw-red-light);color:var(--uw-red);}
+.tho{background:var(--uw-gold-light);color:#92620a;}
+.tf{background:var(--uw-green-light);color:var(--uw-green);}
+.tv{background:var(--uw-purple-light);color:var(--uw-purple);}
+
+/* ── toolbar buttons ── */
+.tb-btn{font-size:12.5px;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Palanquin',sans-serif;font-weight:500;transition:all .13s;}
+.tb-btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--mid);}
+.tb-btn-outline:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.tb-btn-primary{background:var(--uw-blue);border:none;color:white;font-weight:600;}
+.tb-btn-primary:hover{background:var(--uw-blue-mid);}
+
+/* ══════════════ PAGE 5: REPORT ══════════════ */
+.report-page{background:var(--off-white);min-height:100vh;}
+.report-topbar{background:var(--white);border-bottom:1px solid var(--border-light);padding:0 2.5rem;height:58px;display:flex;align-items:center;justify-content:space-between;}
+.report-topbar-title{font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;}
+.report-topbar-actions{display:flex;gap:9px;}
+.report-content{max-width:1140px;margin:0 auto;padding:2rem 2.5rem;}
+
+.report-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:1.75rem;}
+.kpi-card{background:var(--white);border:1px solid var(--border-light);border-radius:13px;padding:1.2rem 1.4rem;position:relative;overflow:hidden;}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:13px 13px 0 0;}
+.kpi-card.blue::after{background:var(--uw-blue);}
+.kpi-card.red::after{background:var(--uw-red);}
+.kpi-card.gold::after{background:var(--uw-gold);}
+.kpi-card.green::after{background:var(--uw-green);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;}
+.kpi-value{font-family:'Antonio',sans-serif;font-size:32px;font-weight:700;color:var(--dark);line-height:1;margin-bottom:4px;}
+.kpi-sub{font-size:11.5px;color:var(--muted);font-weight:300;}
+.kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;margin-top:4px;}
+.kpi-badge.up{background:var(--uw-green-light);color:var(--uw-green);}
+.kpi-badge.down{background:var(--uw-red-light);color:var(--uw-red);}
+
+.report-two-col{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-bottom:1.75rem;}
+.report-card{background:var(--white);border:1px solid var(--border-light);border-radius:13px;overflow:hidden;}
+.rc-header{padding:1rem 1.4rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.rc-title{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;}
+.rc-sub{font-size:11.5px;color:var(--muted);}
+.rc-body{padding:1.2rem 1.4rem;}
+
+/* Weekly Donations chart bars */
+.weekly-chart{display:flex;align-items:flex-end;gap:6px;height:110px;margin-bottom:8px;}
+.wc-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.wc-bar{width:100%;border-radius:4px 4px 0 0;background:var(--uw-blue);transition:height .3s;min-height:4px;position:relative;}
+.wc-bar.highlight{background:var(--uw-gold);}
+.wc-bar-val{font-family:'Antonio',sans-serif;font-size:10px;font-weight:700;color:var(--uw-blue);}
+.wc-day{font-size:10px;color:var(--muted);font-weight:400;}
+
+/* Category breakdown */
+.cat-breakdown{display:flex;flex-direction:column;gap:9px;}
+.cb-row{display:flex;align-items:center;gap:10px;}
+.cb-emoji{font-size:15px;width:22px;text-align:center;flex-shrink:0;}
+.cb-label{font-size:12.5px;font-weight:500;width:110px;flex-shrink:0;}
+.cb-bar-wrap{flex:1;height:6px;background:var(--cream);border-radius:3px;}
+.cb-bar{height:100%;border-radius:3px;}
+.cb-amt{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;white-space:nowrap;width:68px;text-align:right;}
+.cb-pct{font-size:11px;color:var(--muted);width:35px;text-align:right;}
+
+/* Financial report table */
+.fin-table{width:100%;border-collapse:collapse;font-size:13px;}
+.fin-table thead tr{background:var(--uw-blue-pale);}
+.fin-table th{padding:10px 14px;text-align:left;font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--uw-blue);border-bottom:2px solid var(--uw-blue-light);}
+.fin-table td{padding:11px 14px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
+.fin-table tr:last-child td{border-bottom:none;}
+.fin-table tr:hover td{background:var(--off-white);}
+.fin-table .total-row td{background:var(--uw-blue-pale);font-weight:600;border-top:2px solid var(--uw-blue-light);}
+.fin-table .total-row td:first-child{font-family:'Antonio',sans-serif;font-size:14px;color:var(--uw-blue);}
+.td-green{color:var(--uw-green);font-weight:600;}
+.td-red{color:var(--uw-red);font-weight:500;}
+.td-bold{font-family:'Antonio',sans-serif;font-weight:700;}
+.fin-note{font-size:11px;color:var(--muted);padding:10px 14px;background:var(--off-white);border-top:1px solid var(--border-light);line-height:1.6;}
+
+/* Top donors table */
+.donor-table{width:100%;border-collapse:collapse;font-size:13px;}
+.donor-table th{padding:9px 14px;text-align:left;font-family:'Antonio',sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--uw-blue);border-bottom:2px solid var(--uw-blue-light);background:var(--uw-blue-pale);}
+.donor-table td{padding:10px 14px;border-bottom:1px solid var(--border-light);}
+.donor-table tr:last-child td{border-bottom:none;}
+.donor-table tr:hover td{background:var(--off-white);}
+.donor-rank{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;color:var(--muted);}
+.donor-rank.gold-rank{color:var(--uw-gold);}
+
+/* ══════════════ FUND ALLOCATION / SPLIT ══════════════ */
+:root{ --alloc-fee:#BE0000; --alloc-res:#003F87; --alloc-unres:#C98A00; }
+
+.alloc-panel{background:var(--uw-blue-pale);border:1px solid #C9D8EE;border-radius:12px;padding:14px;margin:14px 0;}
+.alloc-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px;}
+.alloc-title{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--uw-blue);display:flex;align-items:center;gap:6px;}
+.alloc-title .alloc-chip{font-family:'Palanquin',sans-serif;font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:none;background:var(--uw-blue);color:#fff;border-radius:20px;padding:1px 8px;}
+.alloc-sub{font-size:11.5px;color:var(--muted);font-weight:300;line-height:1.55;margin-bottom:11px;}
+
+.alloc-bar{display:flex;height:26px;border-radius:7px;overflow:hidden;background:var(--border-light);box-shadow:inset 0 1px 3px rgba(0,0,0,.08);}
+.alloc-seg{display:flex;align-items:center;justify-content:center;font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;color:#fff;transition:width .45s cubic-bezier(.4,0,.2,1);white-space:nowrap;overflow:hidden;min-width:0;}
+.alloc-seg.fee{background:var(--alloc-fee);}
+.alloc-seg.res{background:var(--alloc-res);}
+.alloc-seg.unres{background:var(--alloc-unres);}
+.alloc-scale{display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);margin-top:4px;letter-spacing:.3px;}
+
+.alloc-rows{margin-top:11px;display:flex;flex-direction:column;gap:1px;}
+.alloc-row{display:grid;grid-template-columns:11px 1fr auto;align-items:start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,63,135,.09);}
+.alloc-row:last-child{border-bottom:none;}
+.alloc-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;margin-top:3px;}
+.alloc-right{text-align:right;white-space:nowrap;}
+.alloc-dot.fee{background:var(--alloc-fee);} .alloc-dot.res{background:var(--alloc-res);} .alloc-dot.unres{background:var(--alloc-unres);}
+.alloc-lbl{font-size:12.5px;font-weight:500;color:var(--mid);line-height:1.3;}
+.alloc-lbl small{display:block;font-size:10.5px;font-weight:300;color:var(--muted);}
+.alloc-cents{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.alloc-amt{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;min-width:62px;}
+.alloc-amt.fee{color:var(--alloc-fee);} .alloc-amt.res{color:var(--alloc-res);} .alloc-amt.unres{color:var(--alloc-unres);}
+.alloc-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1.5px solid var(--uw-blue);font-size:12.5px;font-weight:600;color:var(--dark);}
+.alloc-total-row strong{font-family:'Antonio',sans-serif;font-size:17px;}
+
+/* donor-facing controls */
+.alloc-ctrl{margin-top:12px;padding-top:12px;border-top:1px dashed #B9CCE6;}
+.alloc-ctrl-top{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-weight:600;color:var(--mid);margin-bottom:7px;}
+.alloc-ctrl-val{font-family:'Antonio',sans-serif;font-size:14px;color:var(--alloc-unres);}
+input[type=range].alloc-slider{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:4px;background:linear-gradient(90deg,var(--alloc-res) 0%,var(--alloc-unres) 100%);outline:none;cursor:pointer;}
+input[type=range].alloc-slider::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid var(--alloc-unres);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25);}
+input[type=range].alloc-slider::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid var(--alloc-unres);cursor:pointer;}
+.alloc-ctrl-hint{font-size:10.5px;color:var(--muted);font-weight:300;margin-top:6px;line-height:1.5;}
+.alloc-presets{display:flex;gap:5px;margin-top:8px;}
+.alloc-preset{flex:1;font-family:'Palanquin',sans-serif;font-size:11px;font-weight:600;padding:5px 4px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s;}
+.alloc-preset:hover{border-color:var(--uw-blue);color:var(--uw-blue);}
+.alloc-preset.active{background:var(--uw-blue);border-color:var(--uw-blue);color:#fff;}
+
+/* fee-model toggle (demo control) */
+.fee-model{display:flex;align-items:center;gap:8px;margin-top:11px;padding-top:11px;border-top:1px dashed #B9CCE6;flex-wrap:wrap;}
+.fee-model-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.fee-seg{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;background:var(--white);}
+.fee-seg button{font-family:'Palanquin',sans-serif;font-size:11px;font-weight:600;padding:4px 10px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;}
+.fee-seg button.active{background:var(--uw-blue);color:#fff;}
+
+/* donor-facing "cover the fee" opt-in */
+.alloc-cover{display:flex;align-items:flex-start;gap:8px;margin-top:11px;padding-top:11px;border-top:1px dashed #B9CCE6;cursor:pointer;}
+.alloc-cover input{margin-top:2px;width:15px;height:15px;accent-color:var(--uw-blue);cursor:pointer;flex-shrink:0;}
+.alloc-cover-txt{font-size:11.5px;color:var(--mid);line-height:1.5;font-weight:500;}
+.alloc-cover-txt small{display:block;font-size:10.5px;color:var(--muted);font-weight:300;margin-top:1px;}
+
+/* ── FOLLOW-THE-DOLLAR FLOW ── */
+.df-wrap{padding:6px 0 2px;}
+.df-coin{width:104px;margin:0 auto;text-align:center;background:linear-gradient(145deg,var(--uw-gold),#E09600);border-radius:12px;padding:9px 6px;box-shadow:0 3px 10px rgba(245,168,0,.35);}
+.df-coin-amt{font-family:'Antonio',sans-serif;font-size:26px;font-weight:700;color:var(--dark);line-height:1;}
+.df-coin-lbl{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:rgba(0,0,0,.55);margin-top:2px;}
+.df-stem{width:2px;height:18px;background:var(--border);margin:0 auto;}
+.df-rail{height:2px;background:var(--border);margin:0 16.66%;}
+.df-buckets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.df-bucket{position:relative;padding-top:18px;text-align:center;}
+.df-bucket::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:18px;background:var(--border);}
+.df-card{border-radius:10px;padding:11px 8px;border:1.5px solid;background:var(--white);height:100%;}
+.df-card.fee{border-color:#E8BDBD;background:var(--uw-red-light);}
+.df-card.res{border-color:#B9CCE6;background:var(--uw-blue-light);}
+.df-card.unres{border-color:#EBD49A;background:var(--uw-gold-light);}
+.df-icon{font-size:17px;line-height:1;margin-bottom:5px;}
+.df-amt{font-family:'Antonio',sans-serif;font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;}
+.df-card.fee .df-amt{color:var(--alloc-fee);} .df-card.res .df-amt{color:var(--alloc-res);} .df-card.unres .df-amt{color:var(--alloc-unres);}
+.df-name{font-size:11.5px;font-weight:600;color:var(--dark);margin-top:4px;line-height:1.3;}
+.df-desc{font-size:10px;color:var(--muted);font-weight:300;line-height:1.45;margin-top:3px;}
+.df-pct{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.4px;border-radius:20px;padding:1px 7px;margin-top:5px;background:rgba(255,255,255,.75);}
+.df-card.fee .df-pct{color:var(--alloc-fee);} .df-card.res .df-pct{color:var(--alloc-res);} .df-card.unres .df-pct{color:var(--alloc-unres);}
+
+/* ── CONFIRMATION allocation section ── */
+.alloc-section{background:var(--white);border:1px solid var(--border-light);border-radius:14px;padding:1.5rem;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.alloc-section-title{font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;margin-bottom:3px;}
+.alloc-section-sub{font-size:12.5px;color:var(--muted);font-weight:300;margin-bottom:16px;line-height:1.6;}
+.alloc-acct-note{margin-top:14px;background:var(--uw-blue-pale);border-left:3px solid var(--uw-blue);border-radius:0 8px 8px 0;padding:10px 13px;font-size:11.5px;color:var(--mid);font-weight:300;line-height:1.65;}
+.alloc-acct-note strong{font-weight:600;color:var(--uw-blue);}
+
+/* ── REPORT allocation cards ── */
+.td-gold{color:var(--alloc-unres);font-weight:600;}
+.report-alloc-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:900px){.report-alloc-grid{grid-template-columns:1fr;}}
+/* ── donor-facing allocation message ── */
+.alloc-msg{background:var(--uw-gold-light);border:1px solid #EBD49A;border-left:4px solid var(--uw-gold);border-radius:0 10px 10px 0;padding:12px 14px;margin:14px 0 0;font-size:12.5px;line-height:1.7;color:var(--mid);}
+.alloc-msg strong{color:var(--dark);font-weight:600;}
+.alloc-msg-icon{font-family:'Antonio',sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:#8A6200;display:block;margin-bottom:5px;}
+.alloc-msg.wide{margin:0 0 16px;font-size:13.5px;}
+.alloc-sub-msg{font-size:11.5px;color:var(--muted);font-weight:300;line-height:1.6;margin-bottom:11px;}
+.alloc-sub-msg strong{color:var(--uw-blue);font-weight:600;}
+
+/* ── admin allocation settings ── */
+.set-note{background:var(--uw-blue-pale);border-left:3px solid var(--uw-blue);border-radius:0 8px 8px 0;padding:10px 13px;font-size:12px;color:var(--mid);line-height:1.65;margin-top:12px;}
+.set-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end;}
+.set-num{display:flex;align-items:center;gap:7px;}
+.set-num input{width:78px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Antonio',sans-serif;font-size:19px;font-weight:700;color:var(--uw-blue);text-align:center;}
+.set-num input:focus{outline:none;border-color:var(--uw-blue);}
+.set-num .set-pct{font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;color:var(--muted);}
+.set-num.unres input{color:var(--alloc-unres);}
+.set-lock{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mid);cursor:pointer;margin-top:4px;}
+.set-lock input{width:15px;height:15px;accent-color:var(--uw-blue);cursor:pointer;}
+.set-fee-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.set-preview{background:var(--off-white);border:1px solid var(--border-light);border-radius:11px;padding:14px;}
+.set-preview-title{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;}
+.set-textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'Palanquin',sans-serif;font-size:12.5px;color:var(--dark);resize:vertical;min-height:62px;line-height:1.6;}
+.set-textarea:focus{outline:none;border-color:var(--uw-blue);}
+@media(max-width:900px){.set-split,.set-fee-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="page active" id="page-report">
+  <div class="cobrand-bar"><div class="cb-left"><div class="uw-logo-wrap"><div class="uw-circle"><div class="uw-circle-inner"></div></div><div class="uw-name">United Way<small>NORTHEAST FLORIDA</small></div></div><div class="cb-div"></div><span class="c3s-sm">C3S<span>.ai</span></span></div><div class="cb-right">FINANCIAL REPORT</div></div>
+  <div class="report-page">
+    <div class="report-topbar">
+      <div class="report-topbar-title" style="font-family:'Antonio',sans-serif;">📊 Financial Report — May 2026</div>
+      <div class="report-topbar-actions">
+        <button class="tb-btn tb-btn-outline" onclick="goTo('page-browse')">← Back to site</button>
+        <button class="tb-btn tb-btn-primary">Export PDF</button>
+      </div>
+    </div>
+    <div class="report-content">
+
+      <!-- KPI row -->
+      <div class="report-kpi-row" id="report-kpi-row"></div>
+
+      <!-- ══ FUND ALLOCATION ══ -->
+      <div class="report-alloc-grid">
+        <div class="report-card">
+          <div class="rc-header">
+            <div><div class="rc-title">Where Every Dollar Goes</div><div class="rc-sub">split applied at the moment of settlement</div></div>
+          </div>
+          <div class="rc-body" style="padding:1.1rem 1.4rem 1.4rem;">
+            <div id="report-alloc-flow"></div>
+            <div class="fee-model" style="border-top:1px solid var(--border-light);margin-top:16px;">
+              <span class="fee-model-lbl">Demo controls · fee handling</span>
+              <div class="fee-seg">
+                <button data-model="deducted" onclick="setFeeModel('deducted')">Deducted</button>
+                <button data-model="added" onclick="setFeeModel('added')">Donor covers</button>
+                <button data-model="absorbed" onclick="setFeeModel('absorbed')">UWNEFL absorbs</button>
+              </div>
+            </div>
+            <div class="alloc-ctrl" style="border-top:1px dashed var(--border);">
+              <div class="alloc-ctrl-top"><span>Unrestricted share of each net gift</span><span class="alloc-ctrl-val" id="rp-slider-val">15%</span></div>
+              <input type="range" class="alloc-slider" id="rp-slider" min="0" max="50" step="1" value="15" oninput="setUnrestricted(this.value)"/>
+              <div class="alloc-ctrl-hint">Adjust to model different allocation policies — every figure on this page recalculates live.</div>
+            </div>
+          </div>
+        </div>
+        <div class="report-card">
+          <div class="rc-header"><div><div class="rc-title">Account Destinations — YTD</div><div class="rc-sub">gross collections by receiving account</div></div></div>
+          <div class="rc-body" style="padding:1.1rem 1.4rem 1.4rem;">
+            <div id="report-alloc-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Allocation detail table -->
+      <div class="report-card" style="margin-bottom:16px;">
+        <div class="rc-header"><div><div class="rc-title">Fund Allocation by Recipient</div><div class="rc-sub">three-way split · processing fee, restricted account, unrestricted account</div></div></div>
+        <table class="fin-table">
+          <thead>
+            <tr>
+              <th>Recipient / Category</th>
+              <th>Collected</th>
+              <th>Transactions</th>
+              <th>Processing Fee</th>
+              <th>→ Restricted A/C</th>
+              <th>→ Unrestricted A/C</th>
+            </tr>
+          </thead>
+          <tbody id="alloc-table-body"></tbody>
+        </table>
+        <div class="fin-note" id="alloc-table-note"></div>
+      </div>
+
+      <!-- Weekly chart + category breakdown -->
+      <div class="report-two-col">
+        <div class="report-card">
+          <div class="rc-header"><div class="rc-title">Weekly Donation Volume</div><div class="rc-sub">$ raised each week · current week highlighted</div></div>
+          <div class="rc-body">
+            <div class="weekly-chart" id="weekly-chart"></div>
+            <div style="display:flex;gap:14px;font-size:11px;color:var(--muted);margin-top:4px;">
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--uw-blue);border-radius:2px;display:inline-block;"></span>Past weeks</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--uw-gold);border-radius:2px;display:inline-block;"></span>Current week</span>
+            </div>
+          </div>
+        </div>
+        <div class="report-card">
+          <div class="rc-header"><div class="rc-title">Amount Raised by Category</div><div class="rc-sub">YTD 2026</div></div>
+          <div class="rc-body">
+            <div class="cat-breakdown">
+              <div class="cb-row"><span class="cb-emoji">🎓</span><span class="cb-label">Education</span><div class="cb-bar-wrap"><div class="cb-bar" style="background:var(--uw-blue);width:72%"></div></div><span class="cb-amt" style="color:var(--uw-blue)">$218,000</span><span class="cb-pct">25.9%</span></div>
+              <div class="cb-row"><span class="cb-emoji">🎖️</span><span class="cb-label">Veterans</span><div class="cb-bar-wrap"><div class="cb-bar" style="background:var(--uw-purple);width:62%"></div></div><span class="cb-amt" style="color:var(--uw-purple)">$187,000</span><span class="cb-pct">22.2%</span></div>
+              <div class="cb-row"><span class="cb-emoji">🏥</span><span class="cb-label">Health</span><div class="cb-bar-wrap"><div class="cb-bar" style="background:var(--uw-red);width:58%"></div></div><span class="cb-amt" style="color:var(--uw-red)">$176,000</span><span class="cb-pct">20.9%</span></div>
+              <div class="cb-row"><span class="cb-emoji">🏠</span><span class="cb-label">Housing</span><div class="cb-bar-wrap"><div class="cb-bar" style="background:#92620a;width:48%"></div></div><span class="cb-amt" style="color:#92620a">$145,410</span><span class="cb-pct">17.3%</span></div>
+              <div class="cb-row"><span class="cb-emoji">🥗</span><span class="cb-label">Food &amp; Nutrition</span><div class="cb-bar-wrap"><div class="cb-bar" style="background:var(--uw-green);width:38%"></div></div><span class="cb-amt" style="color:var(--uw-green)">$116,000</span><span class="cb-pct">13.8%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top donors table -->
+      <div class="report-card" style="margin-bottom:16px;">
+        <div class="rc-header"><div class="rc-title">Top Donors This Month</div><div class="rc-sub">May 2026 · ranked by total given</div></div>
+        <table class="donor-table">
+          <thead><tr><th>#</th><th>Donor</th><th>Recipient</th><th>Category</th><th>Amount</th><th>Type</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td><span class="donor-rank gold-rank">1</span></td><td class="donor-name-cell">C. Washington</td><td>Sgt. Patricia H.</td><td><span class="donor-cat-badge tv">🎖️ Veterans</span></td><td class="td-bold td-green">$2,500</td><td>One-time</td><td>May 1</td></tr>
+            <tr><td><span class="donor-rank" style="color:#b0a000;">2</span></td><td class="donor-name-cell">Anonymous</td><td>Diane &amp; Ray K.</td><td><span class="donor-cat-badge th">🏥 Health</span></td><td class="td-bold td-green">$1,800</td><td>One-time</td><td>May 1</td></tr>
+            <tr><td><span class="donor-rank" style="color:#a07060;">3</span></td><td class="donor-name-cell">R. Fitzgerald</td><td>Marcus T.</td><td><span class="donor-cat-badge te">🎓 Education</span></td><td class="td-bold td-green">$1,200</td><td>Monthly</td><td>May 1</td></tr>
+            <tr><td><span class="donor-rank">4</span></td><td class="donor-name-cell">L. &amp; T. Okafor</td><td>Amara O.</td><td><span class="donor-cat-badge te">🎓 Education</span></td><td class="td-bold td-green">$900</td><td>One-time</td><td>May 2</td></tr>
+            <tr><td><span class="donor-rank">5</span></td><td class="donor-name-cell">Anonymous</td><td>James W.</td><td><span class="donor-cat-badge tv">🎖️ Veterans</span></td><td class="td-bold td-green">$750</td><td>One-time</td><td>May 2</td></tr>
+            <tr><td><span class="donor-rank">6</span></td><td class="donor-name-cell">J. Martinez</td><td>Sophia L.</td><td><span class="donor-cat-badge tho">🏠 Housing</span></td><td class="td-bold td-green">$500</td><td>Monthly</td><td>May 2</td></tr>
+            <tr><td><span class="donor-rank">7</span></td><td class="donor-name-cell">P. Chen</td><td>The Rivera Family</td><td><span class="donor-cat-badge tf">🥗 Food</span></td><td class="td-bold td-green">$400</td><td>One-time</td><td>May 3</td></tr>
+            <tr><td><span class="donor-rank">8</span></td><td class="donor-name-cell">Anonymous</td><td>Dr. Keisha B.</td><td><span class="donor-cat-badge th">🏥 Health</span></td><td class="td-bold td-green">$350</td><td>One-time</td><td>May 3</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const weeklyData = [9800,11200,8400,13600,10900,12400,14200,12100,15800,11600,9200,12400];
+const weeklyLabels = ['W1 Jan','W2 Jan','W3 Jan','W4 Jan','W1 Feb','W2 Feb','W3 Feb','W4 Feb','W1 Mar','W2 Mar','W3 Mar','This wk'];
+
+/* ══════════════════════════════════════════════════════
+   FUND ALLOCATION ENGINE
+   Splits every gift into 3 buckets at the moment of processing:
+     1. Processing fee   → payment processor (PayPal)
+     2. Restricted       → designated recipient / campaign (donor-restricted)
+     3. Unrestricted     → UWNEFL general operating fund
+══════════════════════════════════════════════════════ */
+const alloc = {
+  feeModel: 'deducted',   // 'deducted' | 'added' | 'absorbed'
+  feePct: 2.9,            // processor % rate
+  feeFixed: 0.30,         // processor per-transaction fixed fee
+  unrestrictedPct: 15,    // share of the net gift directed to the general fund
+  allowDonorAdjust: false,// let donors override the split on the profile page
+  purposeOverride: ''     // admin text replacing the per-category purpose phrase
+};
+
+/* What the unrestricted share funds, phrased per recipient category. The admin
+   can replace all of these with a single custom line in Allocation Settings. */
+const catPurpose = {
+  ed: 'finding tutoring, tuition aid and school resources for students across Northeast Florida',
+  he: 'connecting neighbors to healthcare, prescriptions and mental-health services',
+  ho: 'finding the appropriate housing and rental assistance for families across Northeast Florida',
+  fo: 'keeping food pantries and nutrition programs stocked across Northeast Florida',
+  ve: 'supporting veterans and their families across Northeast Florida'
+};
+
+const catPurposeShort = {
+  ed: 'education programs across NEFL',
+  he: 'health &amp; wellness services across NEFL',
+  ho: 'housing support across NEFL',
+  fo: 'food &amp; nutrition programs across NEFL',
+  ve: 'veteran services across NEFL'
+};
+
+function allocPurpose(p) {
+  if (alloc.purposeOverride.trim()) return alloc.purposeOverride.trim();
+  return (p && catPurpose[p.cat]) || 'United Way NEFL\'s broader work across Northeast Florida';
+}
+
+function allocPurposeShort(p) {
+  if (alloc.purposeOverride.trim()) return alloc.purposeOverride.trim();
+  return (p && catPurposeShort[p.cat]) || 'the UWNEFL general fund';
+}
+
+/* The donor-facing sentence. Percentages come from the admin policy and apply
+   to the net gift, so the wording names the processing fee explicitly rather
+   than implying the split is taken off the gross. */
+function allocMessage(p, a, short) {
+  const resPct = 100 - alloc.unrestrictedPct;
+  const unresPct = alloc.unrestrictedPct;
+  const who = p ? p.name : 'the recipient';
+  if (short) {
+    return `<strong>${resPct}%</strong> supports ${shortName(who)} · <strong>${unresPct}%</strong> funds ${allocPurposeShort(p)}.`;
+  }
+  const lead = a.processing > 0 && a.feeModel === 'deducted'
+    ? `After the ${money(a.processing)} processing fee, `
+    : '';
+  const giftRef = a.feeModel === 'deducted' ? 'your gift' : `your ${money(a.gift)} gift`;
+  return `${lead}<strong>${resPct}%</strong> of ${giftRef} — <strong>${money(a.restricted)}</strong> — goes directly to support ${who}, ` +
+         `and <strong>${unresPct}%</strong> — <strong>${money(a.unrestricted)}</strong> — supports United Way NEFL's work ${allocPurpose(p)}.`;
+}
+
+/* "The Rivera Family" → "The Rivera Family" (not "The"); "Dr. Keisha B." → "Dr. Keisha" */
+function shortName(name) {
+  if (!name) return 'the recipient';
+  const parts = name.trim().split(/\s+/);
+  if (/^the$/i.test(parts[0])) return name;
+  if (/^(dr|mr|mrs|ms|sgt|capt|rev|prof)\.?$/i.test(parts[0])) return parts.slice(0, 2).join(' ');
+  return parts[0];
+}
+
+const r2 = n => Math.round(n * 100) / 100;
+const money  = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const money0 = n => '$' + Math.round(n).toLocaleString('en-US');
+const perDollar = (part, whole) => whole > 0 ? (part / whole * 100).toFixed(1) + '¢' : '0.0¢';
+const pctOf = (part, whole) => whole > 0 ? (part / whole * 100) : 0;
+
+function computeAlloc(amount, cfg) {
+  cfg = cfg || alloc;
+  const gift = Math.max(0, parseFloat(amount) || 0);
+  const fee  = gift > 0 ? r2(gift * (cfg.feePct / 100) + cfg.feeFixed) : 0;
+  let charge, processing, net, absorbed;
+
+  if (cfg.feeModel === 'added') {          // donor voluntarily covers the fee on top
+    charge = r2(gift + fee); processing = fee; net = gift; absorbed = 0;
+  } else if (cfg.feeModel === 'absorbed') { // UWNEFL pays the fee from its own funds
+    charge = gift; processing = 0; net = gift; absorbed = fee;
+  } else {                                  // 'deducted' — fee comes out of the gift
+    charge = gift; processing = Math.min(fee, gift); net = r2(gift - processing); absorbed = 0;
+  }
+  const unrestricted = r2(net * (cfg.unrestrictedPct / 100));
+  const restricted   = r2(net - unrestricted);
+  return {gift, fee, charge, processing, net, restricted, unrestricted, absorbed,
+          feeModel: cfg.feeModel, unrestrictedPct: cfg.unrestrictedPct};
+}
+
+/* Fee model → human label */
+const feeModelLabel = {
+  deducted: 'Deducted from gift',
+  added:    'Donor covers fee',
+  absorbed: 'UWNEFL absorbs fee'
+};
+
+/* ── Renders the 3-way stacked bar into a container of .alloc-seg elements ── */
+function paintAllocBar(prefix, a) {
+  const set = (id, val, label) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.width = val.toFixed(2) + '%';
+    el.style.minWidth = val > 0 ? '3px' : '0';
+    el.textContent = val >= 13 ? label : '';
+  };
+  set(prefix + '-seg-fee',   pctOf(a.processing, a.charge),   pctOf(a.processing, a.charge).toFixed(1) + '%');
+  set(prefix + '-seg-res',   pctOf(a.restricted, a.charge),   pctOf(a.restricted, a.charge).toFixed(1) + '%');
+  set(prefix + '-seg-unres', pctOf(a.unrestricted, a.charge), pctOf(a.unrestricted, a.charge).toFixed(1) + '%');
+}
+
+/* ── LIVE DONOR-FACING PANEL (profile page) ── */
+
+function setUnrestricted(v) {
+  alloc.unrestrictedPct = Math.max(0, Math.min(50, parseInt(v) || 0));
+  renderAllocPanel();
+  buildAllocReport();
+  renderAllocSettings();
+  if (document.getElementById('page-payment').classList.contains('active')) renderPayment();
+}
+function setSplitFromRestricted(v) {
+  const res = Math.max(50, Math.min(100, parseInt(v) || 0));
+  setUnrestricted(100 - res);
+}
+function setFeeModel(model) {
+  alloc.feeModel = model;
+  renderAllocPanel();
+  buildAllocReport();
+  renderAllocSettings();
+  if (document.getElementById('page-payment').classList.contains('active')) renderPayment();
+}
+function setFeeRate(pct, fixed) {
+  if (pct !== null)   alloc.feePct   = Math.max(0, Math.min(10, parseFloat(pct) || 0));
+  if (fixed !== null) alloc.feeFixed = Math.max(0, Math.min(5, parseFloat(fixed) || 0));
+  renderAllocPanel();
+  buildAllocReport();
+  renderAllocSettings();
+  if (document.getElementById('page-payment').classList.contains('active')) renderPayment();
+}
+
+/* ── FOLLOW-THE-DOLLAR markup (used on confirmation + report) ── */
+function dollarFlowHTML(a, opts) {
+  opts = opts || {};
+  const basis = opts.perDollar ? 1 : a.charge;
+  const fmt = opts.perDollar
+    ? (v => (v / a.charge * 100).toFixed(1) + '¢')
+    : (opts.round ? money0 : money);
+  const restrictedName = opts.restrictedName || 'designated recipient';
+  const feeNote = a.feeModel === 'absorbed'
+    ? `Nothing taken from the gift — UWNEFL paid ${(opts.perDollar || opts.round) ? money0(a.fee) : money(a.fee)} from its general fund`
+    : `Payment processor · ${alloc.feePct}% + ${money(alloc.feeFixed)} per transaction`;
+  return `
+    <div class="df-wrap">
+      <div class="df-coin">
+        <div class="df-coin-amt">${opts.perDollar ? '$1.00' : (opts.round ? money0(a.charge) : money(a.charge))}</div>
+        <div class="df-coin-lbl">${opts.coinLabel || 'donated'}</div>
+      </div>
+      <div class="df-stem"></div>
+      <div class="df-rail"></div>
+      <div class="df-buckets">
+        <div class="df-bucket"><div class="df-card fee">
+          <div class="df-icon">💳</div>
+          <div class="df-amt">${fmt(a.processing)}</div>
+          <div class="df-name">Processing fee</div>
+          <div class="df-desc">${feeNote}</div>
+          <div class="df-pct">${pctOf(a.processing, a.charge).toFixed(1)}%</div>
+        </div></div>
+        <div class="df-bucket"><div class="df-card res">
+          <div class="df-icon">🔒</div>
+          <div class="df-amt">${fmt(a.restricted)}</div>
+          <div class="df-name">Restricted account</div>
+          <div class="df-desc">Donor-restricted — released only to ${restrictedName}</div>
+          <div class="df-pct">${pctOf(a.restricted, a.charge).toFixed(1)}%</div>
+        </div></div>
+        <div class="df-bucket"><div class="df-card unres">
+          <div class="df-icon">🏛️</div>
+          <div class="df-amt">${fmt(a.unrestricted)}</div>
+          <div class="df-name">Unrestricted account</div>
+          <div class="df-desc">UWNEFL general fund — programs, staffing, operations</div>
+          <div class="df-pct">${pctOf(a.unrestricted, a.charge).toFixed(1)}%</div>
+        </div></div>
+      </div>
+    </div>`;
+}
+
+
+/* ── FINANCIAL REPORT allocation build ── */
+/* Per-recipient YTD gross. These now tie out exactly to the $842,410 headline
+   and to the "Amount Raised by Category" chart on this page:
+   Education 218,000 · Health 176,000 · Housing 145,410 · Food 116,000 · Veterans 187,000 */
+const ytdRecipients = [
+  {name:'Marcus T.',          cat:'🎓 Education', gross:122000, tx:1180},
+  {name:'Amara O.',           cat:'🎓 Education', gross:96000,  tx:940},
+  {name:'Diane &amp; Ray K.',     cat:'🏥 Health',    gross:95000,  tx:830},
+  {name:'Dr. Keisha B.',      cat:'🏥 Health',    gross:81000,  tx:700},
+  {name:'Sophia L.',          cat:'🏠 Housing',   gross:62410,  tx:690},
+  {name:'The Nguyen Family',  cat:'🏠 Housing',   gross:83000,  tx:590},
+  {name:'The Rivera Family',  cat:'🥗 Food',      gross:63000,  tx:980},
+  {name:'Rosa &amp; Miguel D.',   cat:'🥗 Food',      gross:53000,  tx:820},
+  {name:'James W.',           cat:'🎖️ Veterans',  gross:84000,  tx:560},
+  {name:'Sgt. Patricia H.',   cat:'🎖️ Veterans',  gross:103000, tx:640}
+];
+
+function allocForBatch(gross, tx) {
+  const fee = r2(gross * (alloc.feePct / 100) + alloc.feeFixed * tx);
+  let charge, processing, net, absorbed;
+  if (alloc.feeModel === 'added')        { charge = r2(gross + fee); processing = fee; net = gross; absorbed = 0; }
+  else if (alloc.feeModel === 'absorbed'){ charge = gross; processing = 0; net = gross; absorbed = fee; }
+  else                                   { charge = gross; processing = fee; net = r2(gross - fee); absorbed = 0; }
+  const unrestricted = r2(net * (alloc.unrestrictedPct / 100));
+  const restricted   = r2(net - unrestricted);
+  return {gift:gross, fee, charge, processing, net, restricted, unrestricted, absorbed, feeModel:alloc.feeModel};
+}
+
+function buildAllocReport() {
+  const totals = ytdRecipients.reduce((t, r) => {
+    const a = allocForBatch(r.gross, r.tx);
+    t.gross += r.gross; t.tx += r.tx; t.charge += a.charge;
+    t.processing += a.processing; t.restricted += a.restricted; t.unrestricted += a.unrestricted;
+    return t;
+  }, {gross:0, tx:0, charge:0, processing:0, restricted:0, unrestricted:0});
+  const T = {...totals, feeModel: alloc.feeModel, fee: r2(totals.gross*(alloc.feePct/100) + alloc.feeFixed*totals.tx)};
+
+  const kpi = document.getElementById('report-kpi-row');
+  if (kpi) {
+    kpi.innerHTML = `
+      <div class="kpi-card blue">
+        <div class="kpi-label">Total Collected</div>
+        <div class="kpi-value">${money0(T.charge)}</div>
+        <div class="kpi-sub">${T.tx.toLocaleString()} transactions · YTD through May 3, 2026</div>
+        <div class="kpi-badge up">↑ 18.4% vs last year</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">Processing Fees</div>
+        <div class="kpi-value" style="color:var(--alloc-fee)">${money0(T.processing)}</div>
+        <div class="kpi-sub">${alloc.feePct}% + ${money(alloc.feeFixed)} per transaction</div>
+        <div class="kpi-badge down">${perDollar(T.processing, T.charge)} of every $1</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">→ Restricted Account</div>
+        <div class="kpi-value" style="color:var(--alloc-res)">${money0(T.restricted)}</div>
+        <div class="kpi-sub">Donor-designated to named recipients</div>
+        <div class="kpi-badge up">${perDollar(T.restricted, T.charge)} of every $1</div>
+      </div>
+      <div class="kpi-card gold">
+        <div class="kpi-label">→ Unrestricted Account</div>
+        <div class="kpi-value" style="color:var(--alloc-unres)">${money0(T.unrestricted)}</div>
+        <div class="kpi-sub">UWNEFL general operating fund</div>
+        <div class="kpi-badge up">${perDollar(T.unrestricted, T.charge)} of every $1</div>
+      </div>`;
+  }
+
+  // sync the report-side demo controls
+  const rsv = document.getElementById('rp-slider-val');
+  if (rsv) rsv.textContent = alloc.unrestrictedPct + '%';
+  const rs = document.getElementById('rp-slider');
+  if (rs && rs.value != alloc.unrestrictedPct) rs.value = alloc.unrestrictedPct;
+  document.querySelectorAll('#page-report .fee-seg button').forEach(b => {
+    b.classList.toggle('active', b.dataset.model === alloc.feeModel);
+  });
+
+  const flow = document.getElementById('report-alloc-flow');
+  if (flow) flow.innerHTML = dollarFlowHTML(T, {perDollar:true, coinLabel:'every dollar', restrictedName:'the named recipient'});
+
+  const bar = document.getElementById('report-alloc-bar');
+  if (bar) {
+    bar.innerHTML = `
+      <div class="alloc-bar">
+        <div class="alloc-seg fee" id="rp-seg-fee"></div>
+        <div class="alloc-seg res" id="rp-seg-res"></div>
+        <div class="alloc-seg unres" id="rp-seg-unres"></div>
+      </div>
+      <div class="alloc-scale"><span>$0</span><span>${money0(T.charge)} collected YTD</span></div>
+      <div class="alloc-rows">
+        <div class="alloc-row"><span class="alloc-dot fee"></span>
+          <span class="alloc-lbl">Processing fee<small>Payment processor settlement</small></span>
+          <span class="alloc-right"><span class="alloc-amt fee">${T.processing > 0 ? money0(T.processing) : '$0'}</span>
+          <span class="alloc-cents">${perDollar(T.processing, T.charge)} per $1</span></span></div>
+        <div class="alloc-row"><span class="alloc-dot res"></span>
+          <span class="alloc-lbl">Restricted account<small>Released against recipient goals only</small></span>
+          <span class="alloc-right"><span class="alloc-amt res">${money0(T.restricted)}</span>
+          <span class="alloc-cents">${perDollar(T.restricted, T.charge)} per $1</span></span></div>
+        <div class="alloc-row"><span class="alloc-dot unres"></span>
+          <span class="alloc-lbl">Unrestricted account<small>General fund — board-designated use</small></span>
+          <span class="alloc-right"><span class="alloc-amt unres">${money0(T.unrestricted)}</span>
+          <span class="alloc-cents">${perDollar(T.unrestricted, T.charge)} per $1</span></span></div>
+      </div>
+      <div class="alloc-total-row"><span>Total collected YTD</span><strong>${money0(T.charge)}</strong></div>`;
+    paintAllocBar('rp', T);
+  }
+
+  const tbody = document.getElementById('alloc-table-body');
+  if (tbody) {
+    tbody.innerHTML = ytdRecipients.map(r => {
+      const a = allocForBatch(r.gross, r.tx);
+      return `<tr>
+        <td><strong>${r.name}</strong><br/><span style="font-size:11px;color:var(--muted)">${r.cat}</span></td>
+        <td class="td-bold">${money0(a.charge)}</td>
+        <td>${r.tx}</td>
+        <td class="td-red">${a.processing > 0 ? '−' + money0(a.processing) : '$0'}</td>
+        <td class="td-green">${money0(a.restricted)}</td>
+        <td class="td-gold">${money0(a.unrestricted)}</td>
+      </tr>`;
+    }).join('') + `<tr class="total-row">
+        <td>TOTAL (YTD 2026)</td>
+        <td class="td-bold">${money0(T.charge)}</td>
+        <td>${T.tx.toLocaleString()}</td>
+        <td class="td-red">${T.processing > 0 ? '−' + money0(T.processing) : '$0'}</td>
+        <td class="td-green" style="font-family:'Antonio',sans-serif;font-size:15px;">${money0(T.restricted)}</td>
+        <td class="td-gold" style="font-family:'Antonio',sans-serif;font-size:15px;">${money0(T.unrestricted)}</td>
+      </tr>`;
+  }
+
+  const note = document.getElementById('alloc-table-note');
+  if (note) {
+    note.innerHTML = `ⓘ Split policy in effect: <strong>${feeModelLabel[alloc.feeModel]}</strong> ·
+      processing ${alloc.feePct}% + ${money(alloc.feeFixed)} per transaction ·
+      <strong>${100 - alloc.unrestrictedPct}%</strong> of each net gift to the restricted account,
+      <strong>${alloc.unrestrictedPct}%</strong> to the unrestricted general fund.
+      ${alloc.feeModel === 'absorbed' ? `Processing fees of ${money0(T.fee)} were paid by UWNEFL out of unrestricted funds and are not deducted from donor gifts. ` : ''}
+      Restricted balances are released against verified recipient need; unrestricted revenue is board-designated.
+      Report period: January 1 – May 3, 2026.`;
+  }
+}
+
+
+/* ── WEEKLY CHART ── */
+function buildWeeklyChart() {
+  const chart = document.getElementById('weekly-chart');
+  if(!chart) return;
+  const maxVal = Math.max(...weeklyData);
+  chart.innerHTML = weeklyData.map((v,i) => {
+    const h = Math.round((v/maxVal)*100);
+    const isLast = i === weeklyData.length-1;
+    return `<div class="wc-bar-wrap">
+      <div class="wc-bar-val">$${(v/1000).toFixed(1)}K</div>
+      <div class="wc-bar ${isLast?'highlight':''}" style="height:${h}px"></div>
+      <div class="wc-day">${weeklyLabels[i].split(' ')[0]}<br/>${weeklyLabels[i].split(' ')[1]}</div>
+    </div>`;
+  }).join('');
+}
+/* ── STUBS (other pages are not part of this standalone file) ── */
+function goTo(id) { window.scrollTo(0,0); }
+function renderAllocPanel() {}
+function renderAllocSettings() {}
+function renderPayment() {}
+
+/* ── INIT ── */
+buildWeeklyChart();
+buildAllocReport();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<%-- bottom half of the shell - closes what header.jspf opened --%>
+        </div><%-- .a-content --%>
+
+        <div class="admin-footer">
+            <span class="admin-footer-brand">C3S<span class="admin-footer-accent">.ai</span> Admin &middot; United Way Northeast Florida Giving Platform</span>
+        </div>
+    </div><%-- .page-main --%>
+</div><%-- .admin-wrap --%>
+</body>
+</html>

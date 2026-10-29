@@ -7,10 +7,15 @@
     }
     String ctx = request.getContextPath();
     String message = data.getMessage();
+    // the staff sign-in for two doors, each opening its own session scope: the dashboard
+    // (/admin/login) and the financial report (/report/login)
+    boolean reportDoor = Routes.REPORT_LOGIN.equals(data.getAction());
+    String action = reportDoor ? Routes.REPORT_LOGIN : Routes.ADMIN_LOGIN;
     // may create the session, so it has to run before any output
     String csrfInput = HtmlUtil.csrfInput(request);
-    String pageTitle = "Sign in - C3S.ai Admin";
+    String pageTitle = reportDoor ? "Sign in - C3S.ai Financial Report" : "Sign in - C3S.ai Admin";
     String[] scripts = {};
+    String stylesheet = "app.css";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,22 +34,30 @@
             <span class="lb-c3s">C3S<span>.ai</span></span>
         </div>
         <div class="lb-mid">
+            <% if (reportDoor) { %>
+            <div class="lb-eyebrow">Financial Report</div>
+            <div class="lb-headline">Follow every <em>dollar</em>.</div>
+            <% } else { %>
             <div class="lb-eyebrow">Admin Dashboard</div>
             <div class="lb-headline">Manage the <em>fund</em>.</div>
+            <% } %>
         </div>
     </div>
 
     <div class="login-form-side">
         <div class="login-card">
-            <h1>C3S.ai Admin</h1>
+            <h1><%= reportDoor ? "C3S.ai Financial Report" : "C3S.ai Admin" %></h1>
             <div class="login-sub">Sign in to continue</div>
 
             <% if (message != null && !message.isEmpty()) { %>
                 <div class="login-error"><%= HtmlUtil.esc(message) %></div>
             <% } %>
 
-            <form method="post" action="<%= ctx %><%= Routes.ADMIN_LOGIN %>">
+            <form method="post" action="<%= ctx %><%= action %>">
                 <%= csrfInput %>
+                <% if (data.getNext() != null) { %>
+                <input type="hidden" name="next" value="<%= HtmlUtil.esc(data.getNext()) %>"/>
+                <% } %>
                 <div class="field">
                     <label for="username">Username</label>
                     <input id="username" name="username" type="text" autocomplete="username" autofocus
@@ -56,6 +69,8 @@
                 </div>
                 <button type="submit" class="tb-btn tb-btn-primary tb-btn-block">Sign in</button>
             </form>
+            <%-- a way out for anyone who opened the wrong door --%>
+            <a class="tb-btn tb-btn-danger tb-btn-block" href="<%= ctx %><%= Routes.BROWSE_HOME %>">Cancel</a>
 
             <%-- HTTPS only - claiming a secure session over plain HTTP would be misleading --%>
             <% if (request.isSecure()) { %>

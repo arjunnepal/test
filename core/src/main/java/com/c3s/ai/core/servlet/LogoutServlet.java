@@ -13,10 +13,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * POST /logout ends the donor scope, POST /admin/logout the admin one - one at a time, so signing
- * out of the dashboard leaves a donor session alone. AuthSession.end drops the session after both.
+ * POST /logout ends the donor scope, /admin/logout the admin one and /report/logout the report
+ * one - one at a time, so signing out of one leaves the others alone. AuthSession.end drops the
+ * session once no scope is left.
  */
-@WebServlet(name = "LogoutServlet", urlPatterns = {Routes.BROWSE_LOGOUT, Routes.ADMIN_LOGOUT})
+@WebServlet(name = "LogoutServlet", urlPatterns = {Routes.BROWSE_LOGOUT, Routes.ADMIN_LOGOUT, Routes.REPORT_LOGOUT})
 public class LogoutServlet extends BaseServlet {
 
     private static final Logger log = LoggerFactory.getLogger(LogoutServlet.class);
@@ -38,10 +39,18 @@ public class LogoutServlet extends BaseServlet {
     }
 
     private static Scope scopeFor(HttpServletRequest req) {
-        return Routes.ADMIN_LOGOUT.equals(req.getServletPath()) ? Scope.ADMIN : Scope.USER;
+        return switch (req.getServletPath()) {
+            case Routes.ADMIN_LOGOUT -> Scope.ADMIN;
+            case Routes.REPORT_LOGOUT -> Scope.REPORT;
+            default -> Scope.USER;
+        };
     }
 
     private static String afterLogout(Scope scope) {
-        return scope == Scope.ADMIN ? Routes.ADMIN_LOGIN : Routes.BROWSE_HOME;
+        return switch (scope) {
+            case ADMIN -> Routes.ADMIN_LOGIN;
+            case REPORT -> Routes.REPORT_LOGIN;
+            case USER -> Routes.BROWSE_HOME;
+        };
     }
 }

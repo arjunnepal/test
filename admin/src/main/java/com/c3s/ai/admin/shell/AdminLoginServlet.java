@@ -29,6 +29,11 @@ public class AdminLoginServlet extends AbstractLoginServlet {
     }
 
     @Override
+    protected String returnPath(String requested) {
+        return Routes.adminReturnPath(requested);
+    }
+
+    @Override
     protected boolean accepts(Role role) {
         return role.isStaff();
     }

@@ -19,6 +19,7 @@
 
     String pageTitle = "C3S.ai × United Way NEFL — Give";
     String[] scripts = {"core.js", "card-filter.js"};
+    String stylesheet = "app.css";
     boolean brandSticky = false;
     String brandLabel = "GIVING PLATFORM · NORTHEAST FLORIDA";
 %>
@@ -54,8 +55,8 @@
     <div class="nav-actions">
       <%-- the admin dashboard, same app, its own sign-in --%>
       <a class="nav-admin" href="<%= ctx %><%= Routes.ADMIN_PREFIX %>" style="text-decoration:none;text-align:center">+ Admin</a>
-      <%-- no report page yet --%>
-      <button class="nav-admin" type="button" style="border-color:var(--uw-red);color:var(--uw-red);">&#128202; Report</button>
+      <%-- administrators only, with its own sign-in (not the dashboard's) --%>
+      <a class="nav-admin" href="<%= ctx %><%= Routes.REPORT %>" style="text-decoration:none;text-align:center;border-color:var(--uw-red);color:var(--uw-red);">&#128202; Report</a>
       <% if (signedInUser == null) { %>
         <a class="nav-cta" href="<%= ctx %><%= Routes.BROWSE_LOGIN %>" style="text-decoration:none;text-align:center">Sign in</a>
       <% } else { %>

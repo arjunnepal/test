@@ -21,6 +21,7 @@
         <module>core</module>     <!-- sign-in and users, filters, shared servlets, page-data base classes -->
         <module>browse</module>   <!-- the giving page and its read-only DAOs -->
         <module>admin</module>    <!-- the dashboard and its DAOs -->
+        <module>report</module>   <!-- the financial report and its read-only DAOs -->
         <module>web</module>      <!-- JSPs, CSS, JS; packages everything into ROOT.war -->
     </modules>
 
@@ -58,6 +59,11 @@
             <dependency>
                 <groupId>com.c3s.ai</groupId>
                 <artifactId>donation-admin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.c3s.ai</groupId>
+                <artifactId>donation-report</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

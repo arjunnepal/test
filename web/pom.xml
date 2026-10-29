@@ -24,6 +24,10 @@
             <groupId>com.c3s.ai</groupId>
             <artifactId>donation-admin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.c3s.ai</groupId>
+            <artifactId>donation-report</artifactId>
+        </dependency>
         <!-- the JSPs are compiled by Tomcat (and by build/verify-jsps.sh), not by Maven, so
              the servlet and JSP APIs aren't needed here -->
         <dependency>
@@ -51,7 +55,8 @@
 
             <!-- At verify: precompile every JSP with Jasper against the packaged WAR's classes and
                  jars, so a scriptlet error fails the build (needs CATALINA_HOME, skips without),
-                 and fail on any document.write(). See ../build/. -->
+                 fail on markup built in JavaScript, and fail if css/report.css drifts from the
+                 reference report's stylesheet. See ../build/. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -74,6 +79,11 @@
                                 <exec executable="bash" failonerror="true">
                                     <arg value="${project.basedir}/../build/verify-no-markup-in-js.sh"/>
                                     <arg value="${project.basedir}/src/main/webapp"/>
+                                </exec>
+                                <exec executable="bash" failonerror="true">
+                                    <arg value="${project.basedir}/../build/verify-report-css.sh"/>
+                                    <arg value="${project.basedir}/../reference/report.html"/>
+                                    <arg value="${project.basedir}/src/main/webapp/css/report.css"/>
                                 </exec>
                             </target>
                         </configuration>

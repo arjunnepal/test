@@ -7,9 +7,10 @@
     PageData data = (PageData) request.getAttribute("PageData");
     String ctx = request.getContextPath();
 
-    // Style and wording follow the *admin session*, not the role: a donor who pokes at an
-    // /admin URL has no admin scope, so they get the donor page, which is the point.
-    boolean staff = AuthSession.isAuthenticated(request, Scope.ADMIN);
+    // Style and wording follow the *staff session* (dashboard or report), not the role: a donor
+    // who pokes at an /admin URL has no staff scope, so they get the donor page, which is the point.
+    boolean dashboard = AuthSession.isAuthenticated(request, Scope.ADMIN);
+    boolean staff = dashboard || AuthSession.isAuthenticated(request, Scope.REPORT);
 
     // plain instanceof, not a pattern: Jasper compiles JSPs at its own (older) source level
     Object rawStatus = request.getAttribute("jakarta.servlet.error.status_code");
@@ -30,6 +31,7 @@
     }
     String pageTitle = "Something went wrong — C3S.ai" + (staff ? " Admin" : " × United Way NEFL");
     String[] scripts = {};
+    String stylesheet = "app.css";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,8 +47,10 @@
         <div class="err-icon">!</div>
         <h1>Something went wrong<%= staff && status > 0 ? " (" + status + ")" : "" %></h1>
         <p><%= HtmlUtil.esc(message) %></p>
-<% if (staff) { %>
+<% if (dashboard) { %>
         <a class="err-btn" href="<%= ctx %><%= Routes.ADMIN_HOME %>">Back to all profiles</a>
+<% } else if (staff) { %>
+        <a class="err-btn" href="<%= ctx %><%= Routes.REPORT %>">Back to the report</a>
 <% } else { %>
         <a class="err-btn" href="<%= ctx %>/">Back to giving</a>
 <% } %>

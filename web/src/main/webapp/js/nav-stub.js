@@ -1,4 +1,4 @@
-/* [data-goto="page-report"] - navigation to pages that aren't built yet just says so. */
+/* [data-goto="page-donors"] - navigation to pages that aren't built yet just says so. */
 (function () {
     'use strict';
 

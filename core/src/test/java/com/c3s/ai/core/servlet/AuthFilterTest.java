@@ -3,6 +3,7 @@ package com.c3s.ai.core.servlet;
 import com.c3s.ai.core.auth.AuthSession;
 import com.c3s.ai.core.auth.AuthSession.Scope;
 import com.c3s.ai.core.user.Role;
+import com.c3s.ai.core.web.Routes;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +52,18 @@ class AuthFilterTest {
         assertEquals("/admin/login", r.redirectedTo);
     }
 
+    @Test
+    void onlyASignedOutGetRemembersWhereItWasGoing() throws Exception {
+        FilterHarness get = FilterHarness.get(Routes.ADMIN_CATEGORIES);
+        get.run();
+        assertEquals("/admin/login?next=/admin/categories", get.redirectedTo);
+
+        // the dashboard is where sign-in lands anyway
+        FilterHarness home = FilterHarness.get(Routes.ADMIN_HOME);
+        home.run();
+        assertEquals("/admin/login", home.redirectedTo);
+    }
+
     // the heart of the two-scope model
     @Test
     void aDonorSessionIsNoHelpOnTheAdminSideEvenForAnAdministrator() throws Exception {
@@ -80,6 +93,53 @@ class AuthFilterTest {
             assertFalse(r.passedThrough, "an employee should not reach " + path);
             assertEquals(403, r.errorStatus, path + " should be 403, not a redirect");
         }
+    }
+
+    // ---- /report has its own scope, so it and the dashboard never share a sign-in ----
+
+    @Test
+    void theReportNeedsItsOwnSignIn() throws Exception {
+        FilterHarness signedOut = FilterHarness.get(Routes.REPORT);
+        signedOut.run();
+        assertFalse(signedOut.passedThrough);
+        assertEquals("/report/login", signedOut.redirectedTo);
+
+        FilterHarness dashboard = FilterHarness.get(Routes.REPORT).signedIn(Scope.ADMIN, "boss", Role.ADMINISTRATOR);
+        dashboard.run();
+        assertFalse(dashboard.passedThrough, "a dashboard session never opens the report");
+        assertEquals("/report/login", dashboard.redirectedTo);
+
+        FilterHarness donor = FilterHarness.get(Routes.REPORT).signedIn(Scope.USER, "boss", Role.ADMINISTRATOR);
+        donor.run();
+        assertFalse(donor.passedThrough, "nor does a donor session");
+    }
+
+    @Test
+    void aReportSessionOpensTheReportForAdministratorsOnly() throws Exception {
+        FilterHarness administrator = FilterHarness.get(Routes.REPORT).signedIn(Scope.REPORT, "boss", Role.ADMINISTRATOR);
+        administrator.run();
+        assertTrue(administrator.passedThrough);
+        assertEquals("no-store", administrator.headers.get("Cache-Control"));
+
+        FilterHarness employee = FilterHarness.get(Routes.REPORT).signedIn(Scope.REPORT, "casework", Role.EMPLOYEE);
+        employee.run();
+        assertFalse(employee.passedThrough);
+        assertEquals(403, employee.errorStatus);
+    }
+
+    @Test
+    void aReportSessionNeverOpensTheDashboard() throws Exception {
+        FilterHarness r = FilterHarness.get(Routes.ADMIN_CATEGORIES).signedIn(Scope.REPORT, "boss", Role.ADMINISTRATOR);
+        r.run();
+        assertFalse(r.passedThrough);
+        assertEquals("/admin/login?next=/admin/categories", r.redirectedTo);
+    }
+
+    @Test
+    void theReportSignInIsOpenToEveryone() throws Exception {
+        FilterHarness r = FilterHarness.get(Routes.REPORT_LOGIN);
+        r.run();
+        assertTrue(r.passedThrough);
     }
 
     // the role rules are an allow-list: an admin page nobody listed is ADMINISTRATOR-only
@@ -171,6 +231,17 @@ class AuthFilterTest {
         staff.run();
         assertFalse(staff.passedThrough);
         assertNotNull(staff.sessionAttribute(Scope.ADMIN.attribute()));
+    }
+
+    // the report shows no flash, so one left here would pop up later on the dashboard
+    @Test
+    void aStaleReportSignOutLeavesNoMessageBehind() throws Exception {
+        FilterHarness r = FilterHarness.post(Routes.REPORT_LOGOUT).signedIn(Scope.REPORT, "boss", Role.ADMINISTRATOR);
+        r.run();
+        assertFalse(r.passedThrough);
+        assertEquals("/report", r.redirectedTo);
+        assertNull(r.sessionAttribute("flash"));
+        assertNotNull(r.sessionAttribute(Scope.REPORT.attribute()), "still signed in");
     }
 
     @Test

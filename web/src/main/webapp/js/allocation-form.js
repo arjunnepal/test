@@ -29,9 +29,7 @@
         // --- preview maths: mirrors AllocationCalculator / AllocationMessageBuilder in Java -
         // keep in sync. Cosmetic only, the server revalidates on save.
 
-        function round2(v) {
-            return Math.round(v * 100) / 100;
-        }
+        var round2 = C3S.round2;
 
         function money(v) {
             return '$' + (v + 0).toFixed(2);
@@ -71,21 +69,8 @@
         function compute(amount, feePct, feeFixed, feeModel, buckets) {
             var gift = Math.max(0, amount);
             var fee = gift > 0 ? round2(gift * (feePct / 100) + feeFixed) : 0;
-
-            var charge, processing, net;
-            if (feeModel === 'added') {
-                charge = round2(gift + fee);
-                processing = fee;
-                net = gift;
-            } else if (feeModel === 'absorbed') {
-                charge = gift;
-                processing = 0;
-                net = gift;
-            } else {
-                charge = gift;
-                processing = Math.min(fee, gift);
-                net = round2(gift - processing);
-            }
+            var split = C3S.feeSplit(gift, fee, feeModel);
+            var charge = split.charge, processing = split.processing, net = split.net;
 
             var total = buckets.reduce(function (s, b) {
                 return s + b.pct;

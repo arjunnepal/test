@@ -276,6 +276,8 @@ nav{background:var(--white);border-bottom:2px solid var(--uw-blue-light);padding
    ADMIN DASHBOARD  -  /admin  and  /admin/login
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ══════════════ PAGE 6: ADMIN ══════════════ */
+
 /* ── ADMIN SHELL: sidebar + topbar + tab-nav ── */
 .admin-wrap{display:flex;min-height:100vh;}
 .sidebar{width:var(--sidebar-w);flex-shrink:0;background:linear-gradient(180deg,#002358,var(--uw-blue));display:flex;flex-direction:column;position:sticky;top:var(--cobrand-h);height:calc(100vh - var(--cobrand-h));overflow-y:auto;}
@@ -466,6 +468,7 @@ a.tn{display:inline-block;}
 .pt-empty{padding:2.5rem;text-align:center;color:var(--muted);font-size:13.5px;}
 
 /* ── ALLOCATION SETTINGS ── */
+/* ── allocation buckets (admin) ── */
 .bk-head{display:grid;grid-template-columns:14px 1fr 92px 28px;gap:10px;align-items:center;padding:0 0 6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);border-bottom:1px solid var(--border-light);}
 .bk-head-pct{text-align:center;}
 .bk-row{display:grid;grid-template-columns:14px 1fr 92px 28px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border-light);}
@@ -497,6 +500,7 @@ a.tn{display:inline-block;}
 .bk-balance{margin-left:8px;font-family:'Palanquin',sans-serif;font-size:11px;font-weight:600;border:1.5px solid var(--uw-red);color:var(--uw-red);background:var(--white);border-radius:6px;padding:3px 9px;cursor:pointer;}
 .bk-balance:hover{background:var(--uw-red);color:#fff;}
 
+/* ── admin allocation settings ── */
 .set-note{background:var(--uw-blue-pale);border-left:3px solid var(--uw-blue);border-radius:0 8px 8px 0;padding:10px 13px;font-size:12px;color:var(--mid);line-height:1.65;margin-top:12px;}
 .set-note-flush{margin-top:0;}
 .set-note-tight{margin-top:0;margin-bottom:1.1rem;}
@@ -508,10 +512,12 @@ a.tn{display:inline-block;}
 .set-preview-title{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;}
 @media(max-width:900px){.set-fee-row{grid-template-columns:1fr;}}
 
+/* fee-model toggle (demo control) */
 .fee-seg{display:inline-flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;background:var(--white);}
 .fee-seg button{font-family:'Palanquin',sans-serif;font-size:11px;font-weight:600;padding:6px 12px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;}
 .fee-seg button.active{background:var(--uw-blue);color:#fff;}
 
+/* ══════════════ FUND ALLOCATION / SPLIT ══════════════ */
 .alloc-bar{display:flex;height:26px;border-radius:7px;overflow:hidden;background:var(--border-light);box-shadow:inset 0 1px 3px rgba(0,0,0,.08);}
 .alloc-seg{display:flex;align-items:center;justify-content:center;font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;min-width:0;}
 .alloc-seg.fee{background:var(--alloc-fee);}
@@ -534,6 +540,7 @@ a.tn{display:inline-block;}
 .alloc-amt.c5{color:var(--alloc-c5);} .alloc-amt.c6{color:var(--alloc-c6);}
 .alloc-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1.5px solid var(--uw-blue);font-size:12.5px;font-weight:600;color:var(--dark);}
 .alloc-total-row strong{font-family:'Antonio',sans-serif;font-size:17px;}
+/* ── donor-facing allocation message ── */
 .alloc-msg{background:var(--uw-gold-light);border:1px solid #EBD49A;border-left:4px solid var(--uw-gold);border-radius:0 10px 10px 0;padding:12px 14px;margin:14px 0 0;font-size:12.5px;line-height:1.7;color:var(--mid);}
 .alloc-msg-flush{margin:0;}
 .alloc-msg strong{color:var(--dark);font-weight:600;}
@@ -544,7 +551,7 @@ a.tn{display:inline-block;}
 .admin-footer-brand{font-size:11.5px;color:rgba(255,255,255,.7);}
 .admin-footer-accent{color:var(--uw-gold);}
 
-/* ── TOAST ── */
+/* TOAST */
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--uw-blue);color:white;padding:14px 22px;border-radius:11px;font-size:15.5px;font-weight:500;display:flex;align-items:center;gap:11px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;box-shadow:0 8px 24px rgba(0,63,135,.3);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast-icon{width:24px;height:24px;border-radius:50%;background:var(--uw-gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--dark);flex-shrink:0;}
@@ -586,6 +593,7 @@ a.tn{display:inline-block;}
 .login-sub{font-size:12.5px;color:var(--muted);margin-bottom:22px;}
 .login-error{background:var(--uw-red-light);color:var(--uw-red);font-size:12px;font-weight:500;border-radius:8px;padding:9px 12px;margin-bottom:14px;}
 .login-card .tb-btn-block{margin-top:6px;}
+.login-card a.tb-btn-block{display:flex;align-items:center;justify-content:center;margin-top:10px;text-decoration:none;}
 .login-secure{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:var(--muted);margin-top:16px;}
 .login-secure svg{width:13px;height:13px;color:var(--uw-green);}
 

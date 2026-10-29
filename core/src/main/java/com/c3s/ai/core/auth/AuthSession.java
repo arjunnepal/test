@@ -11,8 +11,8 @@ import java.time.Instant;
 
 /**
  * The only place session authentication is read or written. One WAR gets one JSESSIONID, so the
- * admin and user sessions are two independent scopes inside it: signing in on the public site
- * never grants admin access, and both can be live at once as different accounts. A scope ends
+ * user, admin and report sessions are independent scopes inside it: signing in to one never
+ * grants another, and all of them can be live at once as different accounts. A scope ends
  * after its idle timeout, and in any case MAX_AGE after sign-in.
  */
 public final class AuthSession {
@@ -22,7 +22,9 @@ public final class AuthSession {
 
         USER("userAuth", Duration.ofMinutes(30)),
         /** Shorter on purpose, and only refreshed by /admin traffic (see AuthFilter). */
-        ADMIN("adminAuth", Duration.ofMinutes(15));
+        ADMIN("adminAuth", Duration.ofMinutes(15)),
+        /** The financial report. Same sign-in page as ADMIN, its own scope, only refreshed by /report. */
+        REPORT("reportAuth", Duration.ofMinutes(15));
 
         private final String attribute;
         private final Duration idleTimeout;

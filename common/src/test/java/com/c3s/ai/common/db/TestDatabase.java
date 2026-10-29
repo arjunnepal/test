@@ -17,7 +17,7 @@ import java.sql.Statement;
  *
  * start() creates uwnefl_it_&lt;hex&gt;, loads schema.sql and seed.sql, and points DBUtil at it; the
  * database is dropped when the JVM exits. Unconfigured, start() returns false and tests skip.
- * Published in this module's test-jar so browse and admin can use it.
+ * Published in this module's test-jar so browse, admin and report can use it.
  */
 public final class TestDatabase {
 

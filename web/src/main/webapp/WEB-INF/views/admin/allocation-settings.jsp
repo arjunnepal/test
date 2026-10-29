@@ -16,7 +16,7 @@
     String crumb = "Allocation settings";
     String activeSidebar = "settings";
     String activeTab = "settings";
-    String[] extraScripts = {"allocation-form.js"};
+    String[] extraScripts = {"fee-split.js", "allocation-form.js"};
 
     int storedTotal = data.getBucketTotalPct();
     boolean balanced = storedTotal == 100;

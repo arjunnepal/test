@@ -13,6 +13,7 @@
     String csrfInput = HtmlUtil.csrfInput(request);
     String pageTitle = "Sign in — C3S.ai × United Way NEFL";
     String[] scripts = {"core.js", "password-reveal.js"};
+    String stylesheet = "app.css";
 %>
 <!DOCTYPE html>
 <html lang="en">

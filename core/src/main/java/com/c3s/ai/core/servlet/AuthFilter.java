@@ -25,6 +25,8 @@ import java.util.Set;
  * pass, every non-GET needs a valid CSRF token, and the public site needs no session at all.
  * Everything under /admin and /photos needs the ADMIN scope and a staff role - the USER scope
  * never opens an admin door. EMPLOYEE has an allow-list, so a new admin path is locked by default.
+ * /report needs the REPORT scope and the ADMINISTRATOR role; an admin session doesn't open it,
+ * and a report session doesn't open /admin.
  */
 public class AuthFilter implements Filter {
 
@@ -54,7 +56,8 @@ public class AuthFilter implements Filter {
         }
 
         boolean adminPath = Routes.isAdminPath(path) || path.startsWith(Routes.PHOTOS_PREFIX);
-        if (adminPath) {
+        boolean reportPath = Routes.isReportPath(path);
+        if (adminPath || reportPath) {
             // recipient data and CSRF tokens must not survive in the browser cache after sign-out;
             // PhotoServlet sets its own, shorter private caching
             resp.setHeader("Cache-Control", "no-store");
@@ -66,7 +69,12 @@ public class AuthFilter implements Filter {
                 "POST".equalsIgnoreCase(req.getMethod()) && path.equals(Routes.ADMIN_PROFILE);
 
         if (!isSafeMethod(req.getMethod()) && !multipartProfilePost && !Csrf.matches(req)) {
-            csrfReject(req, resp, path, adminPath);
+            csrfReject(req, resp, path, adminPath, reportPath);
+            return;
+        }
+
+        if (reportPath) {
+            reportGate(req, resp, chain, path);
             return;
         }
 
@@ -86,7 +94,7 @@ public class AuthFilter implements Filter {
         if (role == null) {
             // no admin scope, or it expired - the donor scope is deliberately no help here
             log.info("No admin session for {}, redirecting to the admin sign-in", Log.clean(path));
-            resp.sendRedirect(req.getContextPath() + Routes.ADMIN_LOGIN);
+            resp.sendRedirect(req.getContextPath() + adminLogin(req, path));
             return;
         }
 
@@ -101,8 +109,40 @@ public class AuthFilter implements Filter {
         chain.doFilter(request, response);
     }
 
+    private static void reportGate(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, String path)
+            throws IOException, ServletException {
+        if (path.equals(Routes.REPORT_LOGIN)) {
+            chain.doFilter(req, resp);
+            return;
+        }
+        Role role = AuthSession.currentRole(req, Scope.REPORT);
+        if (role == null) {
+            // no report scope - an admin or donor session is deliberately no help here
+            log.info("No report session for {}, redirecting to the report sign-in", Log.clean(path));
+            resp.sendRedirect(req.getContextPath() + Routes.REPORT_LOGIN);
+            return;
+        }
+        if (!role.isAdministrator()) {
+            log.warn("Role {} refused for {}", role, Log.clean(path));
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        AuthSession.touch(req, Scope.REPORT);
+        chain.doFilter(req, resp);
+    }
+
     static boolean employeeMayUse(String path) {
         return EMPLOYEE_PATHS.contains(path) || path.startsWith(Routes.PHOTOS_PREFIX);
+    }
+
+    // a signed-out GET of an admin page comes back to that page once signed in; adminReturnPath
+    // only passes [a-z0-9/-], so it needs no encoding
+    private static String adminLogin(HttpServletRequest req, String path) {
+        String next = "GET".equalsIgnoreCase(req.getMethod()) ? Routes.adminReturnPath(path) : null;
+        if (next == null || next.equals(Routes.ADMIN_HOME)) {
+            return Routes.ADMIN_LOGIN;
+        }
+        return Routes.ADMIN_LOGIN + "?next=" + next;
     }
 
     private static boolean isSafeMethod(String method) {
@@ -113,11 +153,17 @@ public class AuthFilter implements Filter {
      * A missing or stale CSRF token, usually a form left open too long. Nothing is saved, and
      * nobody is signed out - that would let any same-site page end a session with one POST.
      */
-    private static void csrfReject(HttpServletRequest req, HttpServletResponse resp, String path, boolean adminPath)
-            throws IOException {
+    private static void csrfReject(HttpServletRequest req, HttpServletResponse resp, String path, boolean adminPath,
+                                   boolean reportPath) throws IOException {
         log.info("Missing/invalid CSRF token for {} {}", Log.clean(req.getMethod()), Log.clean(path));
-        if (path.equals(Routes.ADMIN_LOGIN) || path.equals(Routes.BROWSE_LOGIN)) {
+        if (path.equals(Routes.ADMIN_LOGIN) || path.equals(Routes.BROWSE_LOGIN) || path.equals(Routes.REPORT_LOGIN)) {
             resp.sendRedirect(req.getContextPath() + path);
+            return;
+        }
+        if (reportPath) {
+            // the report saves nothing (its only form is sign-out) and shows no flash, so a
+            // message pushed here would surface later on the dashboard instead
+            resp.sendRedirect(req.getContextPath() + Routes.REPORT);
             return;
         }
         FlashScope.push(req, FORM_EXPIRED_MESSAGE);

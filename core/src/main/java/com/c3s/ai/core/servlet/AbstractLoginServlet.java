@@ -44,6 +44,11 @@ public abstract class AbstractLoginServlet extends BaseServlet {
     /** Where to go once signed in. */
     protected abstract String successPath();
 
+    /** A requested page ("next") this door may return to, or null. None by default. */
+    protected String returnPath(String requested) {
+        return null;
+    }
+
     /** False rejects the credentials even though they were correct (wrong door). */
     protected abstract boolean accepts(Role role);
 
@@ -54,7 +59,7 @@ public abstract class AbstractLoginServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (AuthSession.isAuthenticated(req, scope())) {
-            redirect(req, resp, successPath());
+            redirect(req, resp, landingPath(req));
             return;
         }
         show(req, resp, new LoginPageData(), HttpServletResponse.SC_OK);
@@ -98,7 +103,12 @@ public abstract class AbstractLoginServlet extends BaseServlet {
         }
         AuthSession.begin(req, scope(), user);
         log.info("Login succeeded for username={} scope={} role={}", Log.clean(user.username()), scope(), user.role());
-        redirect(req, resp, successPath());
+        redirect(req, resp, landingPath(req));
+    }
+
+    private String landingPath(HttpServletRequest req) {
+        String next = returnPath(req.getParameter("next"));
+        return next != null ? next : successPath();
     }
 
     private void reject(HttpServletRequest req, HttpServletResponse resp, String username,
@@ -111,6 +121,9 @@ public abstract class AbstractLoginServlet extends BaseServlet {
 
     private void show(HttpServletRequest req, HttpServletResponse resp, LoginPageData data, int status)
             throws ServletException, IOException {
+        // the form posts "next" back, so a failed attempt doesn't lose it
+        data.setNext(returnPath(req.getParameter("next")));
+        data.setAction(req.getServletPath());
         // has a CSRF token, don't cache
         noStore(resp);
         render(req, resp, view(), data, status);

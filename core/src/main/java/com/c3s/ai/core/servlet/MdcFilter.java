@@ -41,8 +41,8 @@ public class MdcFilter implements Filter {
         }
 
         MDC.put("requestId", requestId);
-        // the identity that authorises this request - /admin runs on the admin scope, everything
-        // else on the donor one, and both can be live at once as different people
+        // the identity that authorises this request - /admin runs on the admin scope, /report on
+        // the report one, everything else on the donor one; all can be live at once
         String user = AuthSession.currentUser(req, scopeFor(req));
         if (user != null) {
             MDC.put("user", user);
@@ -57,6 +57,9 @@ public class MdcFilter implements Filter {
     private static Scope scopeFor(HttpServletRequest req) {
         String pathInfo = req.getPathInfo();
         String path = pathInfo == null ? req.getServletPath() : req.getServletPath() + pathInfo;
+        if (Routes.isReportPath(path)) {
+            return Scope.REPORT;
+        }
         return Routes.isAdminPath(path) ? Scope.ADMIN : Scope.USER;
     }
 }

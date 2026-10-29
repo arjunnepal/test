@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>C3S.ai x United Way NEFL - Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&family=Palanquin:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+
+:root{
+  --uw-blue:#003F87; --uw-blue-mid:#1A5FAD; --uw-blue-light:#E8EEF7; --uw-blue-pale:#F0F4FB;
+  --uw-red:#BE0000; --uw-red-light:#FAEAEA;
+  --uw-gold:#F5A800; --uw-gold-light:#FEF4DC;
+  --uw-green:#2E7D32; --uw-green-light:#E8F5E9;
+  --uw-purple:#5B2DA8; --uw-purple-light:#F0E8FF;
+  --off-white:#F7F6F2; --cream:#F0EDE5; --dark:#111827;
+  --mid:#374151; --muted:#6B7280; --border:#D1D5DB;
+  --border-light:#E5E7EB; --white:#FFFFFF;
+  --pp-blue:#003087; --pp-cyan:#009cde; --pp-gold:#FFC439;
+  --sidebar-w:252px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{font-family:'Palanquin',sans-serif;background:var(--off-white);color:var(--dark);min-height:100vh;}
+.page{display:none;min-height:100vh;} .page.active{display:block;}
+
+/* ── COBRAND BAR ── */
+.cobrand-bar{background:var(--uw-blue);padding:0 2.5rem;height:50px;display:flex;align-items:center;justify-content:space-between;}
+.cb-left{display:flex;align-items:center;gap:16px;}
+.uw-logo-wrap{display:flex;align-items:center;gap:9px;}
+.uw-circle{width:32px;height:32px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.uw-circle-inner{width:20px;height:20px;border-radius:50%;background:conic-gradient(var(--uw-red) 0deg 120deg,var(--uw-gold) 120deg 240deg,var(--uw-blue) 240deg 360deg);position:relative;}
+.uw-circle-inner::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;background:white;border-radius:50%;}
+.uw-name{font-family:'Antonio',sans-serif;font-size:12px;font-weight:500;color:white;line-height:1.25;}
+.uw-name small{display:block;font-family:'Palanquin',sans-serif;font-size:9.5px;font-weight:300;color:rgba(255,255,255,.6);letter-spacing:.4px;}
+.cb-div{width:1px;height:26px;background:rgba(255,255,255,.22);}
+.c3s-sm{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;color:white;letter-spacing:-.2px;}
+.c3s-sm span{color:var(--uw-gold);}
+.cb-right{font-size:10.5px;color:rgba(255,255,255,.45);font-family:'Palanquin',sans-serif;letter-spacing:.5px;}
+
+/* ── WEEKLY DONOR TICKER ── */
+.ticker-bar{background:var(--uw-gold);padding:0 2.5rem;height:36px;display:flex;align-items:center;gap:0;overflow:hidden;position:relative;}
+.ticker-label{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;color:var(--dark);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;margin-right:16px;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.ticker-dot{width:7px;height:7px;border-radius:50%;background:var(--uw-red);animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(.85);}}
+.ticker-track{flex:1;overflow:hidden;position:relative;}
+.ticker-inner{display:flex;gap:0;animation:ticker 38s linear infinite;white-space:nowrap;}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.ticker-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--dark);padding:0 28px 0 0;white-space:nowrap;}
+.ticker-item .ti-amt{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;color:var(--uw-blue);}
+.ticker-item .ti-sep{color:rgba(0,0,0,.25);}
+
+/* ── NAV ── */
+nav{background:var(--white);border-bottom:2px solid var(--uw-blue-light);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,63,135,.07);}
+.nav-logo{font-family:'Antonio',sans-serif;font-size:21px;font-weight:700;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:6px;}
+.nav-logo span{color:var(--uw-blue);}
+.nav-pipe{color:var(--border);font-weight:300;}
+.nav-uw{font-size:13px;font-weight:500;color:var(--uw-blue);margin-left:2px;}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+.nav-admin{font-size:13px;padding:6px 14px;border:1.5px solid var(--uw-blue);border-radius:8px;cursor:pointer;background:transparent;color:var(--uw-blue);font-family:'Palanquin',sans-serif;font-weight:500;transition:all .15s;}
+.nav-admin:hover{background:var(--uw-blue);color:white;}
+.nav-cta{font-size:13px;padding:6px 14px;border:none;border-radius:8px;cursor:pointer;background:var(--uw-blue);color:white;font-family:'Palanquin',sans-serif;font-weight:600;}
+.breadcrumb{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);}
+.breadcrumb a{color:var(--muted);text-decoration:none;cursor:pointer;} .breadcrumb a:hover{color:var(--uw-blue);}
+.breadcrumb span{color:var(--dark);font-weight:500;}
+.secure-badge{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);font-weight:500;}
+.secure-badge svg{width:13px;height:13px;color:var(--uw-green);}
+
+/* ── STEPS ── */
+.steps{background:var(--white);border-bottom:1px solid var(--border-light);padding:12px 2.5rem;display:flex;align-items:center;justify-content:center;}
+.step-item{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);}
+.step-item.done{color:var(--uw-blue);font-weight:500;} .step-item.active{color:var(--dark);font-weight:600;}
+.step-dot{width:25px;height:25px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;background:var(--white);}
+.step-item.done .step-dot{background:var(--uw-blue);border-color:var(--uw-blue);color:white;font-size:12px;}
+.step-item.active .step-dot{border-color:var(--uw-blue);color:var(--uw-blue);}
+.step-divider{width:55px;height:2px;background:var(--border-light);margin:0 10px;}
+
+/* ══════════════ PAGE 1: BROWSE ══════════════ */
+.hero{background:var(--white);border-bottom:1px solid var(--border-light);padding:3rem 2.5rem 2.5rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;right:0;width:45%;height:100%;background:linear-gradient(135deg,var(--uw-blue-pale),transparent 70%);pointer-events:none;}
+.hero::after{content:'';position:absolute;top:-50px;right:-30px;width:280px;height:280px;border-radius:50%;border:55px solid var(--uw-blue-light);opacity:.55;pointer-events:none;}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--uw-blue);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.ey-dot{width:6px;height:6px;border-radius:50%;background:var(--uw-red);display:inline-block;}
+.hero h1{font-family:'Antonio',sans-serif;font-size:50px;font-weight:700;line-height:1.05;max-width:580px;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--uw-blue);position:relative;}
+.hero h1 em::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:4px;background:var(--uw-gold);border-radius:2px;}
+.hero p{font-size:15px;color:var(--muted);line-height:1.75;max-width:480px;font-weight:300;}
+
+/* ── LIVE STATS BAR ── */
+.stats-wrap{background:var(--uw-blue);}
+.stats-inner{display:grid;grid-template-columns:repeat(5,1fr);}
+.stat-block{padding:1.1rem 2.5rem;border-right:1px solid rgba(255,255,255,.12);}
+.stat-block:last-child{border-right:none;}
+.stat-num{font-family:'Antonio',sans-serif;font-size:30px;font-weight:700;color:white;line-height:1;margin-bottom:3px;}
+.stat-num span{color:var(--uw-gold);}
+.stat-desc{font-size:11px;color:rgba(255,255,255,.55);font-weight:300;letter-spacing:.2px;}
+
+/* ── PROGRESS TICKER STRIP ── */
+.progress-strip{background:var(--white);border-bottom:1px solid var(--border-light);padding:1rem 2.5rem;display:flex;gap:16px;align-items:center;overflow-x:auto;}
+.ps-label{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+.ps-item{display:flex;align-items:center;gap:10px;background:var(--off-white);border:1px solid var(--border-light);border-radius:10px;padding:8px 14px;flex-shrink:0;}
+.ps-cat{font-size:12px;font-weight:600;color:var(--mid);white-space:nowrap;}
+.ps-bar-wrap{width:90px;height:5px;background:var(--border-light);border-radius:3px;}
+.ps-bar{height:100%;border-radius:3px;}
+.ps-amt{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;white-space:nowrap;}
+
+/* ── FILTER CONTROLS ── */
+.filter-section{padding:1.1rem 2.5rem;background:var(--white);border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.filter-label{font-size:11px;color:var(--muted);font-weight:600;margin-right:4px;text-transform:uppercase;letter-spacing:.6px;}
+.chip{font-size:12.5px;padding:5px 14px;border-radius:100px;border:1.5px solid var(--border);cursor:pointer;background:transparent;color:var(--mid);font-family:'Palanquin',sans-serif;font-weight:400;transition:all .15s;}
+.chip:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.chip.active{background:var(--uw-blue);border-color:var(--uw-blue);color:white;font-weight:500;}
+.chip.cat-all.active{background:var(--uw-blue);}
+.chip.cat-ed.active{background:var(--uw-blue);}
+.chip.cat-he.active{background:var(--uw-red);}
+.chip.cat-ho.active{background:#92620a;}
+.chip.cat-fo.active{background:var(--uw-green);}
+.chip.cat-ve.active{background:var(--uw-purple);}
+.filter-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.sort-select{font-size:12.5px;padding:5px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--mid);font-family:'Palanquin',sans-serif;outline:none;cursor:pointer;}
+.sort-select:focus{border-color:var(--uw-blue);}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--off-white);border:1.5px solid var(--border);border-radius:8px;padding:5px 12px;}
+.search-box svg{width:13px;height:13px;color:var(--muted);}
+.search-box input{border:none;background:transparent;font-size:12.5px;font-family:'Palanquin',sans-serif;color:var(--dark);outline:none;width:170px;}
+.search-box input::placeholder{color:var(--muted);}
+
+/* ── GRID ── */
+.grid-section{padding:1.75rem 2.5rem;}
+.grid-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.grid-title{font-family:'Antonio',sans-serif;font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.grid-count{font-size:12px;color:var(--muted);}
+.donor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(218px,1fr));gap:14px;}
+
+.dcard{background:var(--white);border:1px solid var(--border-light);border-radius:13px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;}
+.dcard:hover{transform:translateY(-5px);border-color:var(--uw-blue-mid);box-shadow:0 14px 36px rgba(0,63,135,.13);}
+.dcard-img{width:100%;height:118px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;}
+.dcard-weekly{position:absolute;top:8px;right:8px;font-size:9.5px;font-weight:600;padding:3px 8px;border-radius:100px;background:var(--uw-gold);color:var(--dark);font-family:'Palanquin',sans-serif;letter-spacing:.3px;}
+.dcard-body{padding:12px 14px 13px;}
+.dcard-name{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px;color:var(--dark);}
+.dcard-tag{display:inline-block;font-size:10.5px;padding:2px 9px;border-radius:100px;margin-bottom:7px;font-weight:500;font-family:'Palanquin',sans-serif;}
+.dcard-blurb{font-size:12px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px;font-weight:300;}
+.dcard-progress{margin-bottom:10px;}
+.dcard-prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;}
+.dcard-prog-label{color:var(--muted);}
+.dcard-prog-pct{font-weight:700;color:var(--uw-blue);}
+.prog-track{height:4px;background:var(--cream);border-radius:2px;}
+.prog-fill{height:100%;border-radius:2px;background:var(--uw-blue);}
+.dcard-weekly-donor{font-size:11px;color:var(--uw-green);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.dcard-weekly-donor::before{content:'↑';font-size:10px;}
+.dcard-btn{width:100%;padding:8px;background:var(--uw-blue);color:white;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;transition:background .15s;}
+.dcard-btn:hover{background:var(--uw-blue-mid);}
+
+/* tag colors */
+.te{background:var(--uw-blue-light);color:var(--uw-blue);}
+.th{background:var(--uw-red-light);color:var(--uw-red);}
+.tho{background:var(--uw-gold-light);color:#92620a;}
+.tf{background:var(--uw-green-light);color:var(--uw-green);}
+.tv{background:var(--uw-purple-light);color:var(--uw-purple);}
+
+.page-footer{text-align:center;padding:1.75rem 2.5rem;font-size:12.5px;color:var(--muted);border-top:1px solid var(--border-light);background:var(--white);}
+.page-footer strong{color:var(--uw-blue);}
+
+/* ══════════════ PAGE 2: PROFILE ══════════════ */
+.p2-main{max-width:1080px;margin:0 auto;padding:2rem 2.5rem;display:grid;grid-template-columns:1fr 292px;gap:2.5rem;align-items:start;}
+.profile-hero{width:100%;height:250px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:76px;margin-bottom:1.25rem;border:1px solid var(--border-light);position:relative;overflow:hidden;}
+.profile-hero::after{content:attr(data-cat);position:absolute;bottom:12px;left:12px;font-size:10.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 11px;border-radius:100px;font-family:'Palanquin',sans-serif;background:rgba(255,255,255,.85);}
+.profile-name{font-family:'Antonio',sans-serif;font-size:36px;font-weight:700;line-height:1.1;margin-bottom:5px;}
+.profile-loc{font-size:13px;color:var(--muted);margin-bottom:1.25rem;display:flex;align-items:center;gap:5px;}
+.profile-loc svg{width:13px;height:13px;}
+.goal-box{background:var(--white);border:1px solid var(--border-light);border-radius:13px;padding:1.1rem 1.4rem;margin-bottom:1.25rem;}
+.goal-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;}
+.goal-raised{font-family:'Antonio',sans-serif;font-size:26px;font-weight:700;}
+.goal-raised span{font-family:'Palanquin',sans-serif;font-size:13px;color:var(--muted);font-weight:300;}
+.goal-pct{font-family:'Antonio',sans-serif;font-size:22px;font-weight:700;color:var(--uw-blue);}
+.big-prog{height:7px;background:var(--cream);border-radius:4px;margin-bottom:8px;}
+.big-prog-fill{height:100%;border-radius:4px;background:var(--uw-blue);}
+.goal-meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);}
+.goal-meta strong{color:var(--dark);}
+.detail-chips{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:1.25rem;}
+.detail-chip{background:var(--white);border:1px solid var(--border-light);border-radius:11px;padding:9px 13px;}
+.detail-chip-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.detail-chip-val{font-size:13.5px;font-weight:500;}
+.story-section h2{font-family:'Antonio',sans-serif;font-size:22px;font-weight:700;margin-bottom:.9rem;}
+.story-section p{font-size:14.5px;color:var(--mid);line-height:1.8;margin-bottom:.9rem;font-weight:300;}
+.recent-donors{margin-top:1.75rem;}
+.rd-title{font-family:'Antonio',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px;}
+.rd-list{display:flex;flex-direction:column;gap:7px;}
+.rd-item{display:flex;align-items:center;gap:11px;background:var(--white);border:1px solid var(--border-light);border-radius:9px;padding:9px 13px;}
+.rd-avatar{width:32px;height:32px;border-radius:50%;background:var(--uw-blue-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--uw-blue);flex-shrink:0;}
+.rd-name{font-size:13.5px;flex:1;}
+.rd-time{font-size:11.5px;color:var(--muted);}
+.rd-amt{font-size:13.5px;font-weight:700;color:var(--uw-blue);}
+
+.donor-panel{background:var(--white);border:1px solid var(--border-light);border-radius:16px;padding:1.4rem;position:sticky;top:74px;overflow:hidden;}
+.donor-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--uw-blue),var(--uw-blue-mid),var(--uw-gold));}
+.panel-title{font-family:'Antonio',sans-serif;font-size:20px;font-weight:700;margin-bottom:3px;margin-top:3px;}
+.panel-sub{font-size:12.5px;color:var(--muted);margin-bottom:1.1rem;line-height:1.5;font-weight:300;}
+.weekly-donor-toggle{display:flex;align-items:center;gap:8px;background:var(--uw-gold-light);border:1px solid var(--uw-gold);border-radius:10px;padding:9px 12px;margin-bottom:12px;cursor:pointer;}
+.wdt-icon{font-size:16px;}
+.wdt-text{flex:1;}
+.wdt-title{font-size:12.5px;font-weight:600;color:var(--dark);}
+.wdt-sub{font-size:11px;color:#92620a;font-weight:300;}
+.wdt-toggle{width:38px;height:20px;background:var(--uw-gold);border-radius:100px;position:relative;flex-shrink:0;transition:background .2s;}
+.wdt-toggle.on{background:var(--uw-green);}
+.wdt-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.wdt-toggle.on .wdt-thumb{left:20px;}
+.tab-row{display:flex;gap:0;margin-bottom:1.1rem;background:var(--off-white);border-radius:9px;padding:3px;border:1px solid var(--border-light);}
+.dtab{flex:1;padding:6px;text-align:center;font-size:12.5px;font-weight:500;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:'Palanquin',sans-serif;transition:all .15s;}
+.dtab.active{background:var(--white);color:var(--dark);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.amt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:9px;}
+.amt-btn{padding:8px 4px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--white);font-size:12.5px;font-weight:500;font-family:'Palanquin',sans-serif;color:var(--dark);text-align:center;transition:all .12s;}
+.amt-btn:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.amt-btn.active{border:2px solid var(--uw-blue);background:var(--uw-blue-light);color:var(--uw-blue);}
+.custom-field{margin-bottom:10px;}
+.custom-field label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:3px;}
+.custom-field input{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13.5px;font-family:'Palanquin',sans-serif;color:var(--dark);outline:none;}
+.custom-field input:focus{border-color:var(--uw-blue);}
+.anon-row{display:flex;align-items:center;gap:7px;margin-bottom:10px;padding:9px 11px;background:var(--off-white);border-radius:8px;font-size:12.5px;color:var(--mid);}
+.anon-row input[type=checkbox]{accent-color:var(--uw-blue);width:13px;height:13px;}
+.card-pay-btn{width:100%;padding:11px;background:var(--uw-blue);color:white;border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;margin-bottom:7px;transition:background .15s;}
+.card-pay-btn:hover{background:var(--uw-blue-mid);}
+.div-or{display:flex;align-items:center;gap:7px;margin:8px 0;font-size:11.5px;color:var(--muted);}
+.div-line{flex:1;height:1px;background:var(--border-light);}
+.pp-btn{width:100%;padding:11px;background:var(--pp-gold);color:#003087;border:none;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'Palanquin',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;transition:background .15s;}
+.pp-btn:hover{background:#f0b429;}
+.pp-logo-txt{font-weight:700;font-size:14px;letter-spacing:-.3px;}
+.pp-logo-txt span:first-child{color:#003087;} .pp-logo-txt span:last-child{color:#009cde;}
+.pay-icons{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-bottom:10px;}
+.pi{font-size:10px;padding:2px 7px;border:1px solid var(--border-light);border-radius:4px;color:var(--muted);background:var(--off-white);font-weight:500;}
+.panel-guarantee{font-size:10.5px;color:var(--muted);text-align:center;line-height:1.6;padding-top:9px;border-top:1px solid var(--border-light);}
+.panel-guarantee strong{color:var(--uw-blue);}
+
+/* ══════════════ PAGE 3: PAYMENT ══════════════ */
+.p3-main{max-width:940px;margin:0 auto;padding:1.75rem 2.5rem;display:grid;grid-template-columns:1fr 292px;gap:2rem;align-items:start;}
+.section-card{background:var(--white);border:1px solid var(--border-light);border-radius:13px;padding:1.4rem;margin-bottom:14px;}
+.pp-logo-header{display:flex;align-items:center;gap:9px;margin-bottom:1.1rem;}
+.pp-logo-big{font-size:21px;font-weight:700;letter-spacing:-.5px;}
+.pp-logo-big span:first-child{color:var(--pp-blue);} .pp-logo-big span:last-child{color:var(--pp-cyan);}
+.pp-tagline{font-size:12px;color:var(--muted);}
+.pp-options{display:flex;flex-direction:column;gap:7px;margin-bottom:1.1rem;}
+.pp-login-btn{width:100%;padding:11px;background:var(--pp-blue);color:white;border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s;}
+.pp-login-btn:hover{background:#002060;}
+.pp-checking-btn{width:100%;padding:11px;background:transparent;color:var(--pp-blue);border:1.5px solid var(--pp-blue);border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;transition:all .15s;}
+.pp-checking-btn:hover{background:#E6F1FB;}
+.pp-field{margin-bottom:9px;}
+.pp-field label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:3px;}
+.pp-field input{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'Palanquin',sans-serif;color:var(--dark);outline:none;}
+.pp-field input:focus{border-color:var(--pp-blue);}
+.pp-new{font-size:11.5px;color:var(--muted);text-align:center;margin-top:9px;}
+.pp-new a{color:var(--pp-blue);cursor:pointer;}
+.card-badges{display:flex;gap:5px;margin-bottom:.9rem;flex-wrap:wrap;}
+.cb{font-size:10.5px;padding:3px 9px;border:1px solid var(--border-light);border-radius:5px;background:var(--off-white);color:var(--mid);font-weight:500;}
+.form-field{margin-bottom:11px;}
+.form-field label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:3px;}
+.form-field input{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'Palanquin',sans-serif;color:var(--dark);outline:none;}
+.form-field input:focus{border-color:var(--uw-blue);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.submit-btn{width:100%;padding:12px;background:var(--uw-blue);color:white;border:none;border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;margin-top:3px;transition:background .15s;}
+.submit-btn:hover{background:var(--uw-blue-mid);}
+.security-footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.7;}
+.security-footer strong{color:var(--uw-green);}
+.order-summary{background:var(--white);border:1px solid var(--border-light);border-radius:13px;overflow:hidden;position:sticky;top:74px;}
+.os-header{padding:1.1rem 1.4rem;border-bottom:1px solid var(--border-light);background:var(--uw-blue);}
+.os-header h3{font-family:'Antonio',sans-serif;font-size:17px;font-weight:600;color:white;}
+.os-body{padding:1.1rem 1.4rem;}
+.os-person{display:flex;align-items:center;gap:11px;padding:11px;background:var(--uw-gold-light);border-radius:11px;margin-bottom:.9rem;border:1px solid #f0d080;}
+.os-avatar{width:38px;height:38px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.os-name{font-size:13.5px;font-weight:600;} .os-tag{font-size:11.5px;color:#92620a;}
+.os-rows{margin-bottom:.9rem;}
+.os-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--border-light);}
+.os-row:last-child{border-bottom:none;}
+.os-row-label{color:var(--muted);}
+.os-row.total{font-size:15px;font-weight:600;padding-top:9px;border-top:2px solid var(--border);border-bottom:none;margin-top:3px;}
+.os-row.total span:last-child{color:var(--uw-blue);}
+.anon-badge{font-size:10.5px;padding:2px 9px;background:var(--uw-blue-light);color:var(--uw-blue);border-radius:100px;font-weight:500;}
+.fee-badge{font-size:10.5px;padding:2px 9px;background:var(--uw-green-light);color:var(--uw-green);border-radius:100px;font-weight:500;}
+.os-guarantee{font-size:11.5px;color:var(--muted);line-height:1.6;padding:11px;background:var(--off-white);border-radius:9px;margin-top:.9rem;}
+.os-guarantee strong{color:var(--uw-blue);}
+
+/* ══════════════ PAGE 4: CONFIRM ══════════════ */
+.banner{background:linear-gradient(135deg,var(--uw-blue),#1A5FAD);text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;}
+.banner::before{content:'';position:absolute;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;border:48px solid rgba(255,255,255,.05);pointer-events:none;}
+.banner::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;border:38px solid rgba(245,168,0,.12);pointer-events:none;}
+.check-circle{width:68px;height:68px;border-radius:50%;background:var(--uw-gold);display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;font-size:28px;color:var(--dark);}
+.banner h1{font-family:'Antonio',sans-serif;font-size:38px;font-weight:700;margin-bottom:7px;color:white;}
+.banner p{font-size:15px;color:rgba(255,255,255,.8);font-weight:300;line-height:1.6;max-width:480px;margin:0 auto;}
+.p4-main{max-width:740px;margin:0 auto;padding:2rem 2rem;}
+.receipt-card{background:var(--white);border:1px solid var(--border-light);border-radius:16px;overflow:hidden;margin-bottom:1.25rem;box-shadow:0 4px 18px rgba(0,0,0,.05);}
+.receipt-header{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.6rem;border-bottom:1px solid var(--border-light);}
+.receipt-header h2{font-family:'Antonio',sans-serif;font-size:20px;font-weight:600;}
+.receipt-id{font-size:11.5px;color:var(--muted);background:var(--off-white);padding:4px 9px;border-radius:5px;font-family:monospace;}
+.receipt-person{display:flex;align-items:center;gap:13px;padding:1.1rem 1.6rem;background:var(--uw-blue);}
+.rp-avatar{width:48px;height:48px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:2px solid rgba(255,255,255,.3);}
+.rp-name{font-family:'Antonio',sans-serif;font-size:17px;font-weight:600;color:white;}
+.rp-tag{font-size:12.5px;color:rgba(255,255,255,.7);margin-top:2px;}
+.rp-prog-label{font-size:11.5px;color:rgba(255,255,255,.65);margin-bottom:4px;margin-top:7px;}
+.rp-prog-track{height:4px;background:rgba(255,255,255,.2);border-radius:3px;width:220px;}
+.rp-prog-fill{height:100%;border-radius:3px;background:var(--uw-gold);}
+.receipt-rows{padding:0 1.6rem;}
+.rr{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border-light);font-size:13.5px;}
+.rr:last-child{border-bottom:none;}
+.rr-label{color:var(--muted);}
+.rr-val{font-weight:500;}
+.rr-anon{font-size:11.5px;padding:3px 11px;background:var(--uw-blue-light);color:var(--uw-blue);border-radius:100px;font-weight:500;}
+.pp-badge{display:inline-flex;align-items:center;gap:3px;font-size:13.5px;font-weight:700;}
+.pp-badge span:first-child{color:var(--pp-blue);} .pp-badge span:last-child{color:var(--pp-cyan);}
+.receipt-total{padding:1.1rem 1.6rem;background:var(--uw-blue-pale);display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--uw-blue-light);}
+.receipt-total-label{font-size:14px;font-weight:600;}
+.receipt-total-amt{font-family:'Antonio',sans-serif;font-size:30px;font-weight:700;color:var(--uw-blue);}
+.email-notice{background:var(--white);border:1px solid var(--border-light);border-radius:13px;padding:1.1rem 1.4rem;margin-bottom:1.25rem;display:flex;gap:13px;align-items:flex-start;}
+.email-icon{width:40px;height:40px;border-radius:9px;background:var(--uw-blue-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.email-notice h3{font-family:'Antonio',sans-serif;font-size:15px;font-weight:600;margin-bottom:3px;}
+.email-notice p{font-size:12.5px;color:var(--muted);line-height:1.6;font-weight:300;}
+.actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{padding:11px 26px;background:var(--uw-blue);color:white;border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;transition:background .15s;}
+.btn-primary:hover{background:var(--uw-blue-mid);}
+.btn-outline{padding:11px 26px;background:transparent;color:var(--mid);border:1.5px solid var(--border);border-radius:10px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:'Palanquin',sans-serif;transition:all .15s;}
+.btn-outline:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.impact-section{margin:1.75rem 0;}
+.impact-title{font-family:'Antonio',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center;margin-bottom:.9rem;}
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.impact-card{background:var(--white);border:1px solid var(--border-light);border-radius:12px;padding:.9rem;text-align:center;}
+.impact-num{font-family:'Antonio',sans-serif;font-size:24px;font-weight:700;color:var(--uw-blue);margin-bottom:3px;}
+.impact-desc{font-size:11.5px;color:var(--muted);line-height:1.5;font-weight:300;}
+
+/* ══════════════ PAGE 5: REPORT ══════════════ */
+.report-page{background:var(--off-white);min-height:100vh;}
+.report-topbar{background:var(--white);border-bottom:1px solid var(--border-light);padding:0 2.5rem;height:58px;display:flex;align-items:center;justify-content:space-between;}
+.report-topbar-title{font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;}
+.report-topbar-actions{display:flex;gap:9px;}
+.report-content{max-width:1140px;margin:0 auto;padding:2rem 2.5rem;}
+
+.report-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:1.75rem;}
+.kpi-card{background:var(--white);border:1px solid var(--border-light);border-radius:13px;padding:1.2rem 1.4rem;position:relative;overflow:hidden;}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:13px 13px 0 0;}
+.kpi-card.blue::after{background:var(--uw-blue);}
+.kpi-card.red::after{background:var(--uw-red);}
+.kpi-card.gold::after{background:var(--uw-gold);}
+.kpi-card.green::after{background:var(--uw-green);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;}
+.kpi-value{font-family:'Antonio',sans-serif;font-size:32px;font-weight:700;color:var(--dark);line-height:1;margin-bottom:4px;}
+.kpi-sub{font-size:11.5px;color:var(--muted);font-weight:300;}
+.kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;margin-top:4px;}
+.kpi-badge.up{background:var(--uw-green-light);color:var(--uw-green);}
+.kpi-badge.down{background:var(--uw-red-light);color:var(--uw-red);}
+
+.report-two-col{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-bottom:1.75rem;}
+.report-card{background:var(--white);border:1px solid var(--border-light);border-radius:13px;overflow:hidden;}
+.rc-header{padding:1rem 1.4rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.rc-title{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;}
+.rc-sub{font-size:11.5px;color:var(--muted);}
+.rc-body{padding:1.2rem 1.4rem;}
+
+/* Weekly Donations chart bars */
+.weekly-chart{display:flex;align-items:flex-end;gap:6px;height:110px;margin-bottom:8px;}
+.wc-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.wc-bar{width:100%;border-radius:4px 4px 0 0;background:var(--uw-blue);transition:height .3s;min-height:4px;position:relative;}
+.wc-bar.highlight{background:var(--uw-gold);}
+.wc-bar-val{font-family:'Antonio',sans-serif;font-size:10px;font-weight:700;color:var(--uw-blue);}
+.wc-day{font-size:10px;color:var(--muted);font-weight:400;}
+
+/* Category breakdown */
+.cat-breakdown{display:flex;flex-direction:column;gap:9px;}
+.cb-row{display:flex;align-items:center;gap:10px;}
+.cb-emoji{font-size:15px;width:22px;text-align:center;flex-shrink:0;}
+.cb-label{font-size:12.5px;font-weight:500;width:110px;flex-shrink:0;}
+.cb-bar-wrap{flex:1;height:6px;background:var(--cream);border-radius:3px;}
+.cb-bar{height:100%;border-radius:3px;}
+.cb-amt{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;white-space:nowrap;width:68px;text-align:right;}
+.cb-pct{font-size:11px;color:var(--muted);width:35px;text-align:right;}
+
+/* Financial report table */
+.fin-table{width:100%;border-collapse:collapse;font-size:13px;}
+.fin-table thead tr{background:var(--uw-blue-pale);}
+.fin-table th{padding:10px 14px;text-align:left;font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--uw-blue);border-bottom:2px solid var(--uw-blue-light);}
+.fin-table td{padding:11px 14px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
+.fin-table tr:last-child td{border-bottom:none;}
+.fin-table tr:hover td{background:var(--off-white);}
+.fin-table .total-row td{background:var(--uw-blue-pale);font-weight:600;border-top:2px solid var(--uw-blue-light);}
+.fin-table .total-row td:first-child{font-family:'Antonio',sans-serif;font-size:14px;color:var(--uw-blue);}
+.td-green{color:var(--uw-green);font-weight:600;}
+.td-red{color:var(--uw-red);font-weight:500;}
+.td-bold{font-family:'Antonio',sans-serif;font-weight:700;}
+.fin-note{font-size:11px;color:var(--muted);padding:10px 14px;background:var(--off-white);border-top:1px solid var(--border-light);line-height:1.6;}
+
+/* Top donors table */
+.donor-table{width:100%;border-collapse:collapse;font-size:13px;}
+.donor-table th{padding:9px 14px;text-align:left;font-family:'Antonio',sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--uw-blue);border-bottom:2px solid var(--uw-blue-light);background:var(--uw-blue-pale);}
+.donor-table td{padding:10px 14px;border-bottom:1px solid var(--border-light);}
+.donor-table tr:last-child td{border-bottom:none;}
+.donor-table tr:hover td{background:var(--off-white);}
+.donor-rank{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;color:var(--muted);}
+.donor-rank.gold-rank{color:var(--uw-gold);}
+.donor-name-cell{font-weight:500;}
+.donor-cat-badge{font-size:10px;padding:2px 8px;border-radius:100px;font-weight:500;}
+
+/* ══════════════ PAGE 6: ADMIN ══════════════ */
+.admin-wrap{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:linear-gradient(180deg,#002358,var(--uw-blue));display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sb-logo{padding:1.4rem 1.4rem .9rem;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-logo-main{font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;color:white;}
+.sb-logo-main span{color:var(--uw-gold);}
+.sb-logo-sub{font-size:10.5px;color:rgba(255,255,255,.4);margin-top:1px;font-family:'Palanquin',sans-serif;}
+.sb-uw-logo{display:flex;align-items:center;gap:7px;margin-top:9px;padding:7px 9px;background:rgba(255,255,255,.08);border-radius:7px;}
+.sb-uw-dot{width:20px;height:20px;border-radius:50%;background:conic-gradient(var(--uw-red) 0deg 120deg,var(--uw-gold) 120deg 240deg,white 240deg 360deg);flex-shrink:0;position:relative;}
+.sb-uw-dot::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;background:#002358;border-radius:50%;}
+.sb-uw-name{font-size:10.5px;color:rgba(255,255,255,.65);font-family:'Palanquin',sans-serif;line-height:1.3;}
+.sb-section{padding:.9rem .9rem .4rem;font-size:9.5px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+.sb-link{display:flex;align-items:center;gap:9px;padding:8px .9rem;font-size:12.5px;color:rgba(255,255,255,.55);cursor:pointer;border:none;background:transparent;font-family:'Palanquin',sans-serif;width:100%;text-align:left;transition:all .13s;border-left:3px solid transparent;margin-bottom:1px;}
+.sb-link:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.06);}
+.sb-link.active{color:white;background:rgba(255,255,255,.1);border-left-color:var(--uw-gold);}
+.sb-link svg{width:15px;height:15px;flex-shrink:0;opacity:.7;}
+.sb-link.active svg{opacity:1;}
+.sb-divider{border:none;border-top:1px solid rgba(255,255,255,.08);margin:.6rem .9rem;}
+.sb-stats{margin:.9rem;background:rgba(0,0,0,.2);border-radius:9px;padding:11px 13px;}
+.sb-stat-num{font-family:'Antonio',sans-serif;font-size:22px;color:white;line-height:1;}
+.sb-stat-num span{color:var(--uw-gold);}
+.sb-stat-lbl{font-size:10.5px;color:rgba(255,255,255,.4);margin-top:1px;}
+.sb-stat+.sb-stat{margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.07);}
+.sb-bottom{margin-top:auto;padding:.9rem;border-top:1px solid rgba(255,255,255,.08);}
+.sb-user{display:flex;align-items:center;gap:9px;}
+.sb-avatar-wrap{width:30px;height:30px;border-radius:50%;background:var(--uw-gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--dark);flex-shrink:0;}
+.sb-user-name{font-size:12.5px;color:rgba(255,255,255,.75);}
+.sb-user-role{font-size:10.5px;color:rgba(255,255,255,.35);}
+.page-main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border-light);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px;}
+.topbar-crumb{font-family:'Palanquin',sans-serif;font-size:12.5px;font-weight:400;color:var(--muted);}
+.topbar-actions{display:flex;align-items:center;gap:9px;}
+.tb-btn{font-size:12.5px;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Palanquin',sans-serif;font-weight:500;transition:all .13s;}
+.tb-btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--mid);}
+.tb-btn-outline:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.tb-btn-primary{background:var(--uw-blue);border:none;color:white;font-weight:600;}
+.tb-btn-primary:hover{background:var(--uw-blue-mid);}
+.a-content{padding:1.75rem;flex:1;}
+.tab-nav{display:flex;gap:0;margin-bottom:1.75rem;border-bottom:2px solid var(--border-light);}
+.tn{font-size:12.5px;font-weight:500;padding:9px 18px;cursor:pointer;border:none;background:transparent;font-family:'Palanquin',sans-serif;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .13s;}
+.tn.active{color:var(--uw-blue);border-bottom-color:var(--uw-blue);font-weight:600;}
+.tn:hover:not(.active){color:var(--dark);}
+.two-col-form{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;}
+.form-card{background:var(--white);border:1px solid var(--border-light);border-radius:13px;overflow:hidden;}
+.fc-section{padding:1.25rem 1.6rem;border-bottom:1px solid var(--border-light);}
+.fc-section:last-child{border-bottom:none;}
+.fc-section-title{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:1.1rem;display:flex;align-items:center;gap:9px;}
+.fc-section-title::after{content:'';flex:1;height:1px;background:var(--border-light);}
+.photo-upload{border:2px dashed var(--border);border-radius:11px;padding:1.75rem;text-align:center;cursor:pointer;transition:all .15s;background:var(--off-white);}
+.photo-upload:hover{border-color:var(--uw-blue-mid);background:var(--uw-blue-pale);}
+.photo-icon{width:48px;height:48px;border-radius:11px;background:var(--white);border:1px solid var(--border-light);display:flex;align-items:center;justify-content:center;margin:0 auto 11px;font-size:20px;}
+.photo-label{font-size:13.5px;font-weight:500;color:var(--dark);margin-bottom:3px;}
+.photo-sub{font-size:11.5px;color:var(--muted);}
+.photo-preview{display:none;position:relative;}
+.photo-preview img{width:100%;height:170px;object-fit:cover;border-radius:9px;display:block;}
+.photo-remove{position:absolute;top:7px;right:7px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:white;border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.field{margin-bottom:13px;}
+.field label{font-size:11.5px;font-weight:500;color:var(--mid);display:block;margin-bottom:4px;}
+.field input,.field textarea,.field select{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'Palanquin',sans-serif;color:var(--dark);outline:none;background:var(--white);transition:border-color .13s;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--uw-blue);}
+.field textarea{resize:vertical;min-height:95px;line-height:1.6;}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.required{color:var(--uw-red);margin-left:2px;}
+.char-count{font-size:10.5px;color:var(--muted);text-align:right;margin-top:3px;}
+.cat-pills{display:flex;flex-wrap:wrap;gap:7px;}
+.cat-pill{padding:6px 13px;border-radius:100px;border:1.5px solid var(--border);cursor:pointer;font-size:12.5px;font-weight:500;font-family:'Palanquin',sans-serif;background:transparent;color:var(--mid);transition:all .13s;}
+.cat-pill:hover{border-color:var(--uw-blue-mid);}
+.cat-pill.sel-e{background:var(--uw-blue-light);border-color:var(--uw-blue);color:var(--uw-blue);}
+.cat-pill.sel-h{background:var(--uw-red-light);border-color:var(--uw-red);color:var(--uw-red);}
+.cat-pill.sel-ho{background:var(--uw-gold-light);border-color:var(--uw-gold);color:#92620a;}
+.cat-pill.sel-f{background:var(--uw-green-light);border-color:var(--uw-green);color:var(--uw-green);}
+.cat-pill.sel-v{background:var(--uw-purple-light);border-color:var(--uw-purple);color:var(--uw-purple);}
+.cat-pill.sel-o{background:var(--cream);border-color:var(--border);color:var(--mid);}
+.needs-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.need-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px 3px 11px;background:var(--uw-blue-light);border-radius:100px;font-size:11.5px;font-weight:500;color:var(--uw-blue);}
+.need-tag button{background:none;border:none;cursor:pointer;color:var(--uw-blue);padding:0;font-size:11px;opacity:.6;}
+.need-tag button:hover{opacity:1;}
+.quick-needs{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.qn-btn{font-size:11.5px;padding:3px 9px;border:1px solid var(--border-light);border-radius:100px;cursor:pointer;background:var(--off-white);color:var(--mid);font-family:'Palanquin',sans-serif;transition:all .12s;}
+.qn-btn:hover{border-color:var(--uw-blue-mid);background:var(--uw-blue-light);color:var(--uw-blue);}
+.deadline-opts{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:7px;}
+.dl-opt{padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:12.5px;font-family:'Palanquin',sans-serif;background:transparent;color:var(--mid);transition:all .13s;}
+.dl-opt:hover{border-color:var(--uw-blue-mid);}
+.dl-opt.active{background:var(--uw-blue-light);border-color:var(--uw-blue);color:var(--uw-blue);font-weight:500;}
+.verify-checks{display:flex;flex-direction:column;gap:7px;}
+.vc-item{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--off-white);border-radius:9px;font-size:12.5px;color:var(--mid);cursor:pointer;}
+.vc-item input[type=checkbox]{accent-color:var(--uw-blue);width:14px;height:14px;flex-shrink:0;}
+.pn-title{font-family:'Antonio',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:12px;}
+.preview-card{background:var(--white);border:1px solid var(--border-light);border-radius:13px;overflow:hidden;}
+.pc-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,var(--uw-gold-light),#fde4a0);}
+.pc-body{padding:12px 15px 14px;}
+.pc-name{font-family:'Antonio',sans-serif;font-size:14.5px;font-weight:700;margin-bottom:4px;}
+.pc-tag{display:inline-block;font-size:10px;padding:2px 9px;border-radius:100px;margin-bottom:7px;font-weight:500;}
+.pc-blurb{font-size:11.5px;line-height:1.5;margin-bottom:11px;font-weight:300;}
+.pc-prog-row{display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;}
+.pc-prog-label{color:var(--muted);} .pc-pct{font-weight:700;color:var(--uw-blue);}
+.pc-prog-track{height:3px;background:var(--cream);border-radius:2px;margin-bottom:11px;}
+.pc-fill{height:100%;border-radius:2px;background:var(--uw-blue);width:0%;}
+.pc-btn{width:100%;padding:8px;background:var(--uw-blue);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;font-family:'Palanquin',sans-serif;}
+.pub-actions{display:flex;flex-direction:column;gap:7px;margin-top:14px;}
+.pub-btn{width:100%;padding:11px;background:var(--uw-blue);color:white;border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;transition:background .15s;}
+.pub-btn:hover{background:var(--uw-blue-mid);}
+.save-btn{width:100%;padding:11px;background:transparent;color:var(--mid);border:1.5px solid var(--border);border-radius:10px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:'Palanquin',sans-serif;transition:all .15s;}
+.save-btn:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.preview-note{font-size:10.5px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.5;}
+.pt-table{background:var(--white);border:1px solid var(--border-light);border-radius:13px;overflow:hidden;}
+.pt-header{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr 1.4fr 1.4fr;gap:10px;padding:11px 18px;background:var(--uw-blue-pale);border-bottom:1px solid var(--border-light);font-family:'Antonio',sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--uw-blue);}
+.pt-row{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr 1.4fr 1.4fr;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border-light);align-items:center;font-size:12.5px;transition:background .1s;}
+.pt-row:last-child{border-bottom:none;} .pt-row:hover{background:var(--off-white);}
+.pt-person{display:flex;align-items:center;gap:9px;}
+.pt-avatar{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.pt-name{font-size:12.5px;font-weight:600;} .pt-loc{font-size:10.5px;color:var(--muted);}
+.pt-tag{font-size:10px;padding:2px 9px;border-radius:100px;font-weight:500;}
+.pt-raised{color:var(--uw-blue);font-weight:700;}
+.pt-pct-wrap{display:flex;flex-direction:column;gap:3px;}
+.pt-pct{font-size:11.5px;font-weight:700;}
+.mini-prog{height:4px;background:var(--cream);border-radius:2px;}
+.mini-prog-fill{height:100%;border-radius:2px;background:var(--uw-blue);}
+.pt-actions{display:flex;gap:5px;}
+.pt-act{font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid var(--border-light);cursor:pointer;background:transparent;color:var(--mid);font-family:'Palanquin',sans-serif;transition:all .12s;}
+.pt-act:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.pt-act.danger:hover{border-color:var(--uw-red);color:var(--uw-red);}
+
+/* TOAST */
+.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--uw-blue);color:white;padding:11px 18px;border-radius:11px;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:9px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;box-shadow:0 8px 24px rgba(0,63,135,.3);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast-icon{width:20px;height:20px;border-radius:50%;background:var(--uw-gold);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--dark);flex-shrink:0;}
+
+/* DEMO NAV */
+.demo-nav{position:fixed;bottom:14px;right:14px;z-index:9998;background:#0f172a;border-radius:13px;padding:7px 11px;display:flex;align-items:center;gap:5px;box-shadow:0 8px 32px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);}
+.demo-label{font-size:10px;color:rgba(255,255,255,.3);font-family:'Palanquin',sans-serif;margin-right:2px;text-transform:uppercase;letter-spacing:.5px;}
+.demo-btn{font-size:11.5px;padding:4px 10px;border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;background:transparent;color:rgba(255,255,255,.5);font-family:'Palanquin',sans-serif;font-weight:500;transition:all .13s;}
+.demo-btn:hover{background:rgba(255,255,255,.08);color:white;}
+.demo-btn.current{background:var(--uw-blue);border-color:var(--uw-blue);color:white;}
+
+/* ══════════════ DONOR SIGN-IN ══════════════ */
+.ds-wrap{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1.5rem;gap:1.5rem;background:var(--off-white);}
+.ds-card{background:var(--white);border:1px solid var(--border-light);border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.06);}
+.ds-card::before{content:'';display:block;height:3px;background:linear-gradient(90deg,var(--uw-blue),var(--uw-blue-mid),var(--uw-gold));}
+.ds-tab-row{display:flex;border-bottom:1px solid var(--border-light);}
+.ds-tab{flex:1;padding:13px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:'Palanquin',sans-serif;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.ds-tab.active{color:var(--uw-blue);border-bottom-color:var(--uw-blue);font-weight:600;}
+.ds-tab:hover:not(.active){color:var(--dark);}
+.ds-body{padding:1.5rem;}
+.ds-panel{display:none;} .ds-panel.active{display:block;}
+.ds-eyebrow{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px;}
+.ds-title{font-family:'Antonio',sans-serif;font-size:22px;font-weight:700;color:var(--dark);margin-bottom:4px;}
+.ds-desc{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:1.25rem;line-height:1.6;}
+.ds-field{margin-bottom:12px;}
+.ds-field label{font-size:11.5px;font-weight:500;color:var(--mid);display:block;margin-bottom:4px;}
+.ds-field input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'Palanquin',sans-serif;color:var(--dark);outline:none;transition:border-color .15s;}
+.ds-field input:focus{border-color:var(--uw-blue);box-shadow:0 0 0 3px rgba(0,63,135,.07);}
+.ds-field input.error{border-color:var(--uw-red);}
+.ds-field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ds-field-hint{font-size:11px;color:var(--muted);margin-top:3px;}
+.ds-pw-wrap{position:relative;}
+.ds-pw-wrap input{padding-right:40px;}
+.ds-pw-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;}
+.ds-pw-toggle:hover{color:var(--uw-blue);}
+.ds-pw-toggle svg{width:15px;height:15px;}
+.ds-strength-row{display:flex;align-items:center;gap:8px;margin-top:5px;}
+.ds-strength-bars{display:flex;gap:3px;flex:1;}
+.ds-sbar{flex:1;height:3px;background:var(--border-light);border-radius:2px;transition:background .2s;}
+.ds-strength-label{font-size:11px;color:var(--muted);min-width:44px;}
+.ds-mfa-nudge{background:var(--uw-gold-light);border:1px solid var(--uw-gold);border-radius:10px;padding:11px 13px;margin:12px 0;display:flex;gap:10px;align-items:flex-start;}
+.ds-mn-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.ds-mn-title{font-size:12.5px;font-weight:600;color:var(--dark);margin-bottom:2px;}
+.ds-mn-sub{font-size:11.5px;color:#92620a;font-weight:300;line-height:1.5;}
+.ds-mn-toggle{display:flex;align-items:center;gap:7px;margin-top:7px;cursor:pointer;font-size:12.5px;font-weight:500;color:var(--dark);}
+.ds-mn-toggle input[type=checkbox]{accent-color:var(--uw-blue);width:14px;height:14px;}
+.ds-mfa-method-row{display:flex;gap:7px;margin-top:9px;}
+.ds-mfa-opt{flex:1;padding:7px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;font-family:'Palanquin',sans-serif;font-weight:500;color:var(--muted);text-align:center;background:transparent;transition:all .15s;}
+.ds-mfa-opt:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.ds-mfa-opt.active{border-color:var(--uw-blue);background:var(--uw-blue-light);color:var(--uw-blue);}
+.ds-meta-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;}
+.ds-remember{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mid);cursor:pointer;}
+.ds-remember input[type=checkbox]{accent-color:var(--uw-blue);width:13px;height:13px;}
+.ds-forgot{font-size:12.5px;color:var(--uw-blue);cursor:pointer;font-weight:500;background:none;border:none;font-family:'Palanquin',sans-serif;}
+.ds-forgot:hover{text-decoration:underline;}
+.ds-err{background:var(--uw-red-light);border:1px solid #f5c0c0;border-radius:9px;padding:9px 13px;font-size:12.5px;color:var(--uw-red);margin-bottom:12px;display:none;align-items:center;gap:7px;line-height:1.5;}
+.ds-err.show{display:flex;}
+.ds-err svg{width:14px;height:14px;flex-shrink:0;}
+.ds-primary-btn{width:100%;padding:12px;background:var(--uw-blue);color:white;border:none;border-radius:11px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;}
+.ds-primary-btn:hover{background:var(--uw-blue-mid);}
+.ds-primary-btn:disabled{background:var(--muted);cursor:not-allowed;}
+.ds-div-or{display:flex;align-items:center;gap:9px;margin:4px 0 12px;font-size:12px;color:var(--muted);}
+.ds-div-line{flex:1;height:1px;background:var(--border-light);}
+.ds-guest-btn{width:100%;padding:11px;background:transparent;color:var(--mid);border:1.5px solid var(--border);border-radius:11px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:'Palanquin',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.ds-guest-btn:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.ds-switch{text-align:center;font-size:12.5px;color:var(--muted);margin-top:1rem;}
+.ds-switch a{color:var(--uw-blue);cursor:pointer;font-weight:500;}
+.ds-switch a:hover{text-decoration:underline;}
+.ds-info-panel{width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;padding-top:4px;}
+.ds-ip-card{background:var(--white);border:1px solid var(--border-light);border-radius:13px;padding:1rem 1.1rem;}
+.ds-ip-icon{font-size:20px;margin-bottom:6px;}
+.ds-ip-title{font-family:'Antonio',sans-serif;font-size:14px;font-weight:700;color:var(--dark);margin-bottom:3px;}
+.ds-ip-desc{font-size:12px;color:var(--muted);font-weight:300;line-height:1.6;}
+.ds-ip-divider{border:none;border-top:1px solid var(--border-light);margin:8px 0;}
+.ds-ip-stat{display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.ds-ip-stat-num{font-family:'Antonio',sans-serif;font-size:18px;font-weight:700;color:var(--uw-blue);}
+.ds-rb{background:var(--uw-blue);padding:.75rem 2.5rem;display:flex;align-items:center;gap:13px;}
+.ds-rb-avatar{width:36px;height:36px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:2px solid rgba(255,255,255,.3);}
+.ds-rb-text{font-size:13px;color:rgba(255,255,255,.85);font-weight:300;}
+.ds-rb-text strong{color:white;font-weight:600;}
+.ds-rb-amount{margin-left:auto;font-family:'Antonio',sans-serif;font-size:22px;font-weight:700;color:var(--uw-gold);}
+.ds-rb-amount-label{font-size:10px;color:rgba(255,255,255,.5);text-align:right;margin-top:1px;}
+
+/* ══════════════ FUND ALLOCATION / SPLIT ══════════════ */
+:root{ --alloc-fee:#BE0000; --alloc-res:#003F87; --alloc-unres:#C98A00; }
+
+.alloc-panel{background:var(--uw-blue-pale);border:1px solid #C9D8EE;border-radius:12px;padding:14px;margin:14px 0;}
+.alloc-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px;}
+.alloc-title{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--uw-blue);display:flex;align-items:center;gap:6px;}
+.alloc-title .alloc-chip{font-family:'Palanquin',sans-serif;font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:none;background:var(--uw-blue);color:#fff;border-radius:20px;padding:1px 8px;}
+.alloc-sub{font-size:11.5px;color:var(--muted);font-weight:300;line-height:1.55;margin-bottom:11px;}
+
+.alloc-bar{display:flex;height:26px;border-radius:7px;overflow:hidden;background:var(--border-light);box-shadow:inset 0 1px 3px rgba(0,0,0,.08);}
+.alloc-seg{display:flex;align-items:center;justify-content:center;font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;color:#fff;transition:width .45s cubic-bezier(.4,0,.2,1);white-space:nowrap;overflow:hidden;min-width:0;}
+.alloc-seg.fee{background:var(--alloc-fee);}
+.alloc-seg.res{background:var(--alloc-res);}
+.alloc-seg.unres{background:var(--alloc-unres);}
+.alloc-scale{display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);margin-top:4px;letter-spacing:.3px;}
+
+.alloc-rows{margin-top:11px;display:flex;flex-direction:column;gap:1px;}
+.alloc-row{display:grid;grid-template-columns:11px 1fr auto;align-items:start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,63,135,.09);}
+.alloc-row:last-child{border-bottom:none;}
+.alloc-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;margin-top:3px;}
+.alloc-right{text-align:right;white-space:nowrap;}
+.alloc-dot.fee{background:var(--alloc-fee);} .alloc-dot.res{background:var(--alloc-res);} .alloc-dot.unres{background:var(--alloc-unres);}
+.alloc-lbl{font-size:12.5px;font-weight:500;color:var(--mid);line-height:1.3;}
+.alloc-lbl small{display:block;font-size:10.5px;font-weight:300;color:var(--muted);}
+.alloc-cents{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.alloc-amt{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;min-width:62px;}
+.alloc-amt.fee{color:var(--alloc-fee);} .alloc-amt.res{color:var(--alloc-res);} .alloc-amt.unres{color:var(--alloc-unres);}
+.alloc-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1.5px solid var(--uw-blue);font-size:12.5px;font-weight:600;color:var(--dark);}
+.alloc-total-row strong{font-family:'Antonio',sans-serif;font-size:17px;}
+
+/* donor-facing controls */
+.alloc-ctrl{margin-top:12px;padding-top:12px;border-top:1px dashed #B9CCE6;}
+.alloc-ctrl-top{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-weight:600;color:var(--mid);margin-bottom:7px;}
+.alloc-ctrl-val{font-family:'Antonio',sans-serif;font-size:14px;color:var(--alloc-unres);}
+input[type=range].alloc-slider{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:4px;background:linear-gradient(90deg,var(--alloc-res) 0%,var(--alloc-unres) 100%);outline:none;cursor:pointer;}
+input[type=range].alloc-slider::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid var(--alloc-unres);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25);}
+input[type=range].alloc-slider::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid var(--alloc-unres);cursor:pointer;}
+.alloc-ctrl-hint{font-size:10.5px;color:var(--muted);font-weight:300;margin-top:6px;line-height:1.5;}
+.alloc-presets{display:flex;gap:5px;margin-top:8px;}
+.alloc-preset{flex:1;font-family:'Palanquin',sans-serif;font-size:11px;font-weight:600;padding:5px 4px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s;}
+.alloc-preset:hover{border-color:var(--uw-blue);color:var(--uw-blue);}
+.alloc-preset.active{background:var(--uw-blue);border-color:var(--uw-blue);color:#fff;}
+
+/* fee-model toggle (demo control) */
+.fee-model{display:flex;align-items:center;gap:8px;margin-top:11px;padding-top:11px;border-top:1px dashed #B9CCE6;flex-wrap:wrap;}
+.fee-model-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.fee-seg{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;background:var(--white);}
+.fee-seg button{font-family:'Palanquin',sans-serif;font-size:11px;font-weight:600;padding:4px 10px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;}
+.fee-seg button.active{background:var(--uw-blue);color:#fff;}
+
+/* donor-facing "cover the fee" opt-in */
+.alloc-cover{display:flex;align-items:flex-start;gap:8px;margin-top:11px;padding-top:11px;border-top:1px dashed #B9CCE6;cursor:pointer;}
+.alloc-cover input{margin-top:2px;width:15px;height:15px;accent-color:var(--uw-blue);cursor:pointer;flex-shrink:0;}
+.alloc-cover-txt{font-size:11.5px;color:var(--mid);line-height:1.5;font-weight:500;}
+.alloc-cover-txt small{display:block;font-size:10.5px;color:var(--muted);font-weight:300;margin-top:1px;}
+
+/* ── FOLLOW-THE-DOLLAR FLOW ── */
+.df-wrap{padding:6px 0 2px;}
+.df-coin{width:104px;margin:0 auto;text-align:center;background:linear-gradient(145deg,var(--uw-gold),#E09600);border-radius:12px;padding:9px 6px;box-shadow:0 3px 10px rgba(245,168,0,.35);}
+.df-coin-amt{font-family:'Antonio',sans-serif;font-size:26px;font-weight:700;color:var(--dark);line-height:1;}
+.df-coin-lbl{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:rgba(0,0,0,.55);margin-top:2px;}
+.df-stem{width:2px;height:18px;background:var(--border);margin:0 auto;}
+.df-rail{height:2px;background:var(--border);margin:0 16.66%;}
+.df-buckets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.df-bucket{position:relative;padding-top:18px;text-align:center;}
+.df-bucket::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:18px;background:var(--border);}
+.df-card{border-radius:10px;padding:11px 8px;border:1.5px solid;background:var(--white);height:100%;}
+.df-card.fee{border-color:#E8BDBD;background:var(--uw-red-light);}
+.df-card.res{border-color:#B9CCE6;background:var(--uw-blue-light);}
+.df-card.unres{border-color:#EBD49A;background:var(--uw-gold-light);}
+.df-icon{font-size:17px;line-height:1;margin-bottom:5px;}
+.df-amt{font-family:'Antonio',sans-serif;font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;}
+.df-card.fee .df-amt{color:var(--alloc-fee);} .df-card.res .df-amt{color:var(--alloc-res);} .df-card.unres .df-amt{color:var(--alloc-unres);}
+.df-name{font-size:11.5px;font-weight:600;color:var(--dark);margin-top:4px;line-height:1.3;}
+.df-desc{font-size:10px;color:var(--muted);font-weight:300;line-height:1.45;margin-top:3px;}
+.df-pct{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.4px;border-radius:20px;padding:1px 7px;margin-top:5px;background:rgba(255,255,255,.75);}
+.df-card.fee .df-pct{color:var(--alloc-fee);} .df-card.res .df-pct{color:var(--alloc-res);} .df-card.unres .df-pct{color:var(--alloc-unres);}
+
+/* ── CONFIRMATION allocation section ── */
+.alloc-section{background:var(--white);border:1px solid var(--border-light);border-radius:14px;padding:1.5rem;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.alloc-section-title{font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;margin-bottom:3px;}
+.alloc-section-sub{font-size:12.5px;color:var(--muted);font-weight:300;margin-bottom:16px;line-height:1.6;}
+.alloc-acct-note{margin-top:14px;background:var(--uw-blue-pale);border-left:3px solid var(--uw-blue);border-radius:0 8px 8px 0;padding:10px 13px;font-size:11.5px;color:var(--mid);font-weight:300;line-height:1.65;}
+.alloc-acct-note strong{font-weight:600;color:var(--uw-blue);}
+
+/* ── REPORT allocation cards ── */
+.td-gold{color:var(--alloc-unres);font-weight:600;}
+.report-alloc-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:900px){.report-alloc-grid{grid-template-columns:1fr;}}
+/* ── donor-facing allocation message ── */
+.alloc-msg{background:var(--uw-gold-light);border:1px solid #EBD49A;border-left:4px solid var(--uw-gold);border-radius:0 10px 10px 0;padding:12px 14px;margin:14px 0 0;font-size:12.5px;line-height:1.7;color:var(--mid);}
+.alloc-msg strong{color:var(--dark);font-weight:600;}
+.alloc-msg-icon{font-family:'Antonio',sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:#8A6200;display:block;margin-bottom:5px;}
+.alloc-msg.wide{margin:0 0 16px;font-size:13.5px;}
+.alloc-sub-msg{font-size:11.5px;color:var(--muted);font-weight:300;line-height:1.6;margin-bottom:11px;}
+.alloc-sub-msg strong{color:var(--uw-blue);font-weight:600;}
+
+/* ── admin allocation settings ── */
+.set-note{background:var(--uw-blue-pale);border-left:3px solid var(--uw-blue);border-radius:0 8px 8px 0;padding:10px 13px;font-size:12px;color:var(--mid);line-height:1.65;margin-top:12px;}
+.set-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end;}
+.set-num{display:flex;align-items:center;gap:7px;}
+.set-num input{width:78px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Antonio',sans-serif;font-size:19px;font-weight:700;color:var(--uw-blue);text-align:center;}
+.set-num input:focus{outline:none;border-color:var(--uw-blue);}
+.set-num .set-pct{font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;color:var(--muted);}
+.set-num.unres input{color:var(--alloc-unres);}
+.set-lock{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mid);cursor:pointer;margin-top:4px;}
+.set-lock input{width:15px;height:15px;accent-color:var(--uw-blue);cursor:pointer;}
+.set-fee-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.set-preview{background:var(--off-white);border:1px solid var(--border-light);border-radius:11px;padding:14px;}
+.set-preview-title{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;}
+.set-textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'Palanquin',sans-serif;font-size:12.5px;color:var(--dark);resize:vertical;min-height:62px;line-height:1.6;}
+.set-textarea:focus{outline:none;border-color:var(--uw-blue);}
+@media(max-width:900px){.set-split,.set-fee-row{grid-template-columns:1fr;}}
+
+/* standalone build: this file contains only the admin page, so show it unconditionally */
+.page{display:block;}
+
+/* ── allocation buckets (admin) ── */
+:root{ --alloc-c3:#0F8A6A; --alloc-c4:#7A4FBF; --alloc-c5:#C1560E; --alloc-c6:#2A7DB0; }
+.alloc-seg.c3,.alloc-dot.c3{background:var(--alloc-c3);}
+.alloc-seg.c4,.alloc-dot.c4{background:var(--alloc-c4);}
+.alloc-seg.c5,.alloc-dot.c5{background:var(--alloc-c5);}
+.alloc-seg.c6,.alloc-dot.c6{background:var(--alloc-c6);}
+.alloc-amt.c3{color:var(--alloc-c3);} .alloc-amt.c4{color:var(--alloc-c4);}
+.alloc-amt.c5{color:var(--alloc-c5);} .alloc-amt.c6{color:var(--alloc-c6);}
+
+.bk-head{display:grid;grid-template-columns:14px 1fr 92px 28px;gap:10px;align-items:center;padding:0 0 6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);border-bottom:1px solid var(--border-light);}
+.bk-head-pct{text-align:center;}
+.bk-row{display:grid;grid-template-columns:14px 1fr 92px 28px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border-light);}
+.bk-swatch{width:14px;height:32px;border-radius:4px;}
+.bk-swatch.res{background:var(--alloc-res);} .bk-swatch.unres{background:var(--alloc-unres);}
+.bk-swatch.c3{background:var(--alloc-c3);} .bk-swatch.c4{background:var(--alloc-c4);}
+.bk-swatch.c5{background:var(--alloc-c5);} .bk-swatch.c6{background:var(--alloc-c6);}
+.bk-fields{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.bk-fields input{width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Palanquin',sans-serif;background:var(--white);}
+.bk-fields input:focus{outline:none;border-color:var(--uw-blue);}
+.bk-name{font-size:13px;font-weight:600;color:var(--dark);}
+.bk-name[readonly]{background:var(--off-white);color:var(--mid);cursor:default;}
+.bk-purpose{font-size:11.5px;color:var(--mid);}
+.bk-purpose:disabled{background:var(--off-white);color:var(--muted);font-style:italic;}
+.bk-pct{display:flex;align-items:center;justify-content:center;gap:4px;}
+.bk-pct input{width:58px;padding:7px 6px;border:1.5px solid var(--border);border-radius:7px;font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;color:var(--uw-blue);text-align:center;}
+.bk-pct input:focus{outline:none;border-color:var(--uw-blue);}
+.bk-pct span{font-family:'Antonio',sans-serif;font-size:14px;font-weight:700;color:var(--muted);}
+.bk-del{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:var(--white);color:var(--muted);font-size:16px;line-height:1;cursor:pointer;transition:all .15s;}
+.bk-del:hover:not(:disabled){border-color:var(--uw-red);color:var(--uw-red);background:var(--uw-red-light);}
+.bk-del:disabled{opacity:.3;cursor:not-allowed;}
+.bk-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;flex-wrap:wrap;}
+.bk-add{font-family:'Palanquin',sans-serif;font-size:12.5px;font-weight:600;color:var(--uw-blue);background:var(--uw-blue-pale);border:1.5px dashed #9DBAE0;border-radius:8px;padding:8px 14px;cursor:pointer;transition:all .15s;}
+.bk-add:hover{background:var(--uw-blue-light);border-style:solid;}
+.bk-total{font-size:12px;font-weight:600;}
+.bk-total.ok{color:var(--uw-green);}
+.bk-total.bad{color:var(--uw-red);}
+.bk-total strong{font-family:'Antonio',sans-serif;font-size:15px;}
+.bk-balance{margin-left:8px;font-family:'Palanquin',sans-serif;font-size:11px;font-weight:600;border:1.5px solid var(--uw-red);color:var(--uw-red);background:var(--white);border-radius:6px;padding:3px 9px;cursor:pointer;}
+.bk-balance:hover{background:var(--uw-red);color:#fff;}
+@media(max-width:700px){.bk-head,.bk-row{grid-template-columns:14px 1fr 78px 26px;gap:7px;}}
+</style>
+</head>
+<body>
+
+<div class="page active" id="page-admin">
+  <div class="cobrand-bar"><div class="cb-left"><div class="uw-logo-wrap"><div class="uw-circle"><div class="uw-circle-inner"></div></div><div class="uw-name">United Way<small>NORTHEAST FLORIDA</small></div></div><div class="cb-div"></div><span class="c3s-sm">C3S<span>.ai</span></span></div><div class="cb-right">ADMIN DASHBOARD</div></div>
+  <div class="admin-wrap">
+    <div class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-main">C3S<span>.ai</span> Admin</div>
+        <div class="sb-logo-sub">Giving Platform Dashboard</div>
+        <div class="sb-uw-logo"><div class="sb-uw-dot"></div><div class="sb-uw-name">United Way<br/>Northeast Florida</div></div>
+      </div>
+      <div class="sb-section">Profiles</div>
+      <button class="sb-link" id="sb-add" onclick="adminTab('add')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>Add new profile
+      </button>
+      <button class="sb-link active" id="sb-list" onclick="adminTab('list')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>All profiles
+      </button>
+      <hr class="sb-divider"/>
+      <div class="sb-section">Configuration</div>
+      <button class="sb-link" id="sb-settings" onclick="adminTab('settings')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Allocation settings
+      </button>
+      <hr class="sb-divider"/>
+      <div class="sb-section">Reports</div>
+      <button class="sb-link" onclick="goTo('page-report')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Financial report
+      </button>
+      <button class="sb-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Donors
+      </button>
+      <div class="sb-stats">
+        <div class="sb-stat"><div class="sb-stat-num"><span>10</span></div><div class="sb-stat-lbl">Active profiles</div></div>
+        <div class="sb-stat"><div class="sb-stat-num">$<span>842K</span></div><div class="sb-stat-lbl">Raised this year</div></div>
+      </div>
+      <div class="sb-bottom"><div class="sb-user"><div class="sb-avatar-wrap">AK</div><div><div class="sb-user-name">UWNEFL Admin</div><div class="sb-user-role">Super admin</div></div></div></div>
+    </div>
+    <div class="page-main">
+      <div class="topbar">
+        <div class="topbar-title">Admin &nbsp;›&nbsp; <span class="topbar-crumb" id="admin-crumb">All profiles</span></div>
+        <div class="topbar-actions">
+          <button class="tb-btn tb-btn-outline" onclick="goTo('page-report')">📊 Report</button>
+          <button class="tb-btn tb-btn-outline" onclick="goTo('page-browse')">← Back to site</button>
+          <button class="tb-btn tb-btn-primary" onclick="adminTab('add')">+ Add profile</button>
+        </div>
+      </div>
+      <div class="a-content">
+        <div class="tab-nav">
+          <button class="tn" id="tn-add" onclick="adminTab('add')">Add new profile</button>
+          <button class="tn active" id="tn-list" onclick="adminTab('list')">All profiles</button>
+          <button class="tn" id="tn-settings" onclick="adminTab('settings')">Allocation settings</button>
+        </div>
+
+        <!-- ADD PANEL -->
+        <div id="panel-add" style="display:none;">
+          <div class="two-col-form">
+            <div>
+              <div class="form-card">
+                <div class="fc-section">
+                  <div class="fc-section-title">Photo / avatar</div>
+                  <div class="photo-upload" onclick="document.getElementById('photo-input').click()">
+                    <input type="file" id="photo-input" accept="image/*" onchange="previewPhoto(this)" style="display:none"/>
+                    <div id="photo-placeholder"><div class="photo-icon">📸</div><div class="photo-label">Upload a photo</div><div class="photo-sub">Or we'll use a category emoji</div></div>
+                    <div class="photo-preview" id="photo-preview"><img id="preview-img" src="" alt=""/><button class="photo-remove" onclick="removePhoto(event)">✕</button></div>
+                  </div>
+                </div>
+                <div class="fc-section">
+                  <div class="fc-section-title">Basic info</div>
+                  <div class="field"><label>Name or alias <span class="required">*</span></label><input id="f-name" type="text" placeholder="e.g. Marcus T." oninput="updatePreview()"/></div>
+                  <div class="field-row">
+                    <div class="field"><label>City</label><input id="f-city" type="text" placeholder="Jacksonville" oninput="updatePreview()"/></div>
+                    <div class="field"><label>State</label><input id="f-state" type="text" placeholder="FL" oninput="updatePreview()"/></div>
+                  </div>
+                  <div class="field"><label>Short blurb <span class="required">*</span></label><textarea id="f-blurb" rows="2" placeholder="One or two sentences…" oninput="updatePreview();updateBlurb(this)" maxlength="160"></textarea><div class="char-count"><span id="blurb-count">0</span>/160</div></div>
+                  <div class="field"><label>Emoji (optional)</label><input id="emoji-input" type="text" placeholder="🏠" maxlength="2" style="width:70px" oninput="updatePreview()"/></div>
+                </div>
+                <div class="fc-section">
+                  <div class="fc-section-title">Category</div>
+                  <div class="cat-pills">
+                    <button class="cat-pill" onclick="selectCat(this,'e')">🎓 Education</button>
+                    <button class="cat-pill" onclick="selectCat(this,'h')">🏥 Health</button>
+                    <button class="cat-pill sel-ho" onclick="selectCat(this,'ho')">🏠 Housing</button>
+                    <button class="cat-pill" onclick="selectCat(this,'f')">🥗 Food &amp; Nutrition</button>
+                    <button class="cat-pill" onclick="selectCat(this,'v')">🎖️ Veterans</button>
+                    <button class="cat-pill" onclick="selectCat(this,'o')">✦ Other</button>
+                  </div>
+                </div>
+                <div class="fc-section">
+                  <div class="fc-section-title">Full story</div>
+                  <div class="field"><textarea id="f-story" rows="5" placeholder="2–4 paragraphs about their situation and goals…" oninput="updateStoryCount(this)" maxlength="2000"></textarea><div class="char-count"><span id="story-count">0</span>/2000</div></div>
+                </div>
+                <div class="fc-section">
+                  <div class="fc-section-title">Funding goal</div>
+                  <div class="field-row">
+                    <div class="field"><label>Goal ($) <span class="required">*</span></label><input id="f-goal" type="number" min="100" step="50" placeholder="3500" oninput="updatePreview()"/></div>
+                    <div class="field"><label>Already raised ($)</label><input id="f-raised" type="number" min="0" step="10" placeholder="0" oninput="updatePreview()"/></div>
+                  </div>
+                  <div class="field"><label>Deadline</label>
+                    <div class="deadline-opts">
+                      <button class="dl-opt active" onclick="selectDeadline(this,'30d')">30 days</button>
+                      <button class="dl-opt" onclick="selectDeadline(this,'60d')">60 days</button>
+                      <button class="dl-opt" onclick="selectDeadline(this,'90d')">90 days</button>
+                      <button class="dl-opt" onclick="selectDeadline(this,'custom')">Custom</button>
+                    </div>
+                    <input id="f-deadline" type="date" style="display:none;margin-top:7px;width:100%;padding:8px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'Palanquin',sans-serif;outline:none;"/>
+                  </div>
+                </div>
+                <div class="fc-section">
+                  <div class="fc-section-title">Verification</div>
+                  <div class="verify-checks">
+                    <label class="vc-item"><input type="checkbox"/>&nbsp;Identity verified by UWNEFL admin</label>
+                    <label class="vc-item"><input type="checkbox"/>&nbsp;Need documentation reviewed</label>
+                    <label class="vc-item"><input type="checkbox"/>&nbsp;PayPal recipient email confirmed</label>
+                    <label class="vc-item"><input type="checkbox"/>&nbsp;Story reviewed for accuracy</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="pn-title">Live preview</div>
+              <div class="preview-card">
+                <div class="pc-img" id="pc-img"><span id="pc-emoji">🏠</span></div>
+                <div class="pc-body">
+                  <div class="pc-name" id="pc-name">Recipient name</div>
+                  <span class="pc-tag tho" id="pc-tag">Housing</span>
+                  <div class="pc-blurb" id="pc-blurb" style="color:var(--border)">Your blurb will appear here…</div>
+                  <div class="pc-prog-row"><span class="pc-prog-label" id="pc-goal-lbl">$0 of $0</span><span class="pc-pct" id="pc-pct">0%</span></div>
+                  <div class="pc-prog-track"><div class="pc-fill" id="pc-fill"></div></div>
+                  <button class="pc-btn">View profile &amp; donate</button>
+                </div>
+              </div>
+              <div class="pub-actions">
+                <button class="pub-btn" onclick="publishProfile()">✓ Publish to donor site</button>
+                <button class="save-btn">Save as draft</button>
+              </div>
+              <div class="preview-note">Preview updates live. Published profiles appear immediately.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIST PANEL -->
+        <!-- ══ ALLOCATION SETTINGS PANEL ══ -->
+        <div id="panel-settings" style="display:none;">
+          <div class="two-col-form">
+            <div>
+              <div class="form-card">
+                <div class="fc-section">
+                  <div class="fc-section-title">Fund allocation policy</div>
+                  <div class="bk-head">
+                    <span class="bk-head-name">Destination account</span>
+                    <span class="bk-head-pct">Share</span>
+                  </div>
+                  <div id="set-buckets"></div>
+                  <div class="bk-actions">
+                    <button class="bk-add" onclick="addBucket()">+ Add allocation bucket</button>
+                    <span id="set-total" class="bk-total ok"></span>
+                  </div>
+                  <div class="set-note">
+                    Shares apply to the <strong>net</strong> gift — after processing fees are settled — and must
+                    total 100%. Restricted and Unrestricted are core buckets and cannot be removed; add as many
+                    further destinations as you need (for example an administration or emergency-response fund).
+                    Changes here flow through to the donor pages, receipts and the financial report.
+                  </div>
+                  <label class="set-lock" for="set-allow">
+                    <input type="checkbox" id="set-allow" onchange="setAllowDonorAdjust(this.checked)"/>
+                    Let donors adjust the split themselves
+                  </label>
+                </div>
+                <div class="fc-section">
+                  <div class="fc-section-title">Processing fees</div>
+                  <div class="set-fee-row">
+                    <div class="form-field"><label>Processor rate (%)</label><input type="number" id="set-feepct" min="0" max="10" step="0.1" value="2.9" oninput="setFeeRate(this.value, null)"/></div>
+                    <div class="form-field"><label>Fixed fee per transaction ($)</label><input type="number" id="set-feefixed" min="0" max="5" step="0.01" value="0.30" oninput="setFeeRate(null, this.value)"/></div>
+                  </div>
+                  <div class="form-field" style="margin-top:4px;"><label>Who pays the processing fee</label></div>
+                  <div class="fee-seg" style="display:inline-flex;">
+                    <button data-model="deducted" onclick="setFeeModel('deducted')">Deduct from gift</button>
+                    <button data-model="added" onclick="setFeeModel('added')">Ask donor to cover</button>
+                    <button data-model="absorbed" onclick="setFeeModel('absorbed')">UWNEFL absorbs</button>
+                  </div>
+                </div>
+                <div class="fc-section">
+                  <div class="fc-section-title">Donor message</div>
+                  <div class="set-note" style="margin-top:0;">
+                    The sentence donors see is generated from the buckets above. Give each non-recipient bucket a
+                    short "what this funds" description in its row; leave the Unrestricted description blank to use
+                    wording matched to each recipient's category (housing, education, health, food, veterans).
+                  </div>
+                </div>
+                <div class="fc-section" style="border-bottom:none;">
+                  <button class="tb-btn tb-btn-primary" style="width:100%;padding:11px;" onclick="saveAllocSettings()">Save allocation policy</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="set-preview" style="margin-bottom:14px;">
+                <div class="set-preview-title">Live preview — $50 donation</div>
+                <div id="set-preview-body"></div>
+              </div>
+              <div class="set-preview">
+                <div class="set-preview-title">Message donors will see</div>
+                <div class="alloc-msg" style="margin:0;">
+                  <span class="alloc-msg-icon">How your donation is used</span>
+                  <span id="set-msg-preview"></span>
+                </div>
+                <div class="set-note" style="margin-top:12px;">Shown on the payment page and summarised on each profile. Recipient shown here is <strong id="set-msg-who">Sophia L.</strong> — the wording adapts to each recipient's category.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-list">
+          <div class="pt-table" id="admin-profile-table">
+            <div class="pt-header"><span>Recipient</span><span>Category</span><span>Goal</span><span>Raised</span><span>Progress</span><span>Actions</span></div>
+            <!-- populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-icon">✓</div><span id="toast-msg">Saved</span></div>
+
+<script>
+/* ====================================================================
+   C3S.ai x United Way NEFL - ADMIN DASHBOARD (standalone)
+   Extracted from the full click-through prototype. Self-contained:
+   no build step, no dependencies, no server. Open directly in a browser.
+
+   INTEGRATION NOTES
+   -----------------
+   1. `alloc` (below) is the allocation policy object. In production it
+      should be loaded from and persisted to the backend rather than
+      living in memory. Shape:
+
+        alloc = {
+          feeModel        : 'deducted' | 'added' | 'absorbed',
+          feePct          : Number,   // processor rate, e.g. 2.9
+          feeFixed        : Number,   // per-transaction fixed fee, e.g. 0.30
+          unrestrictedPct : Number,   // 0-50, share of the NET gift
+          allowDonorAdjust: Boolean,  // may donors move the split themselves
+          purposeOverride : String    // '' = use the per-category phrase
+        }
+
+      Restricted percent is always (100 - unrestrictedPct). The split
+      applies to the NET gift, i.e. after processing fees are settled.
+
+   2. `computeAlloc(amount)` is the single source of truth for the split.
+      Returns { gift, fee, charge, processing, net, restricted,
+      unrestricted, absorbed }. processing + restricted + unrestricted
+      always equals charge. Reuse this server-side rather than
+      reimplementing the arithmetic.
+
+   3. `saveAllocSettings()` currently only fires a toast. Replace its
+      body with the PUT/POST to your settings endpoint.
+
+   4. Whenever the policy changes, `notifyAllocChange()` dispatches a
+      CustomEvent named 'alloc-change' on document, carrying the current
+      config as event.detail. Donor-facing pages should listen and
+      re-render:
+
+        document.addEventListener('alloc-change', e => { ... e.detail ... });
+
+   5. `allocMessage(profile, computeAlloc(amount), short)` produces the
+      donor-facing sentence shown on the payment page. Category phrases
+      live in `catPurpose` / `catPurposeShort`; the admin free-text
+      override takes precedence over both.
+
+   6. The "Add new profile" tab and the profile list are demo scaffolding.
+      publishProfile() validates and toasts but does not persist.
+   ==================================================================== */
+
+/* ---- SEED DATA (replace with API calls) ---- */
+const profiles = [
+  {id:1,name:'Marcus T.',cat:'ed',catLabel:'Education',emoji:'🎓',loc:'Jacksonville, FL',blurb:'First-generation nursing student needing tuition and textbook support to finish his degree.',goal:2000,raised:1200,weekly:true,weeklyAmt:320,tagCls:'te',bg:'linear-gradient(135deg,var(--uw-blue-light),#b3cef0)',catColor:'Housing support',deadline:'July 31, 2026',donors:47,story:'Marcus is the first in his family to attend college. A working single dad, he juggles night shifts at a local grocery store with full-time coursework in the RN program at Florida State College at Jacksonville. His goal is clear: graduate debt-free, serve his community as a nurse, and show his daughter that anything is possible.'},
+  {id:2,name:'Diane & Ray K.',cat:'he',catLabel:'Health',emoji:'🏥',loc:'Jacksonville, FL',blurb:'Elderly couple with mounting medical bills after Ray\'s stroke. Insurance covered only part of rehab.',goal:6000,raised:4100,weekly:false,weeklyAmt:0,tagCls:'th',bg:'linear-gradient(135deg,var(--uw-red-light),#f5b3b3)',catColor:'Health support',deadline:'June 15, 2026',donors:89,story:'Ray suffered a severe ischemic stroke in February. After 6 weeks of in-patient rehab, he returned home but requires outpatient physical and speech therapy that their Medicare supplement refuses to cover. Diane, 72, is his full-time caregiver while managing her own heart condition. Every dollar raised pays directly for Ray\'s therapy sessions.'},
+  {id:3,name:'Sophia L.',cat:'ho',catLabel:'Housing',emoji:'🏠',loc:'Jacksonville, FL',blurb:'Single mother of two who lost her apartment in a fire. Working toward stable housing.',goal:3500,raised:900,weekly:true,weeklyAmt:185,tagCls:'tho',bg:'linear-gradient(135deg,var(--uw-gold-light),#fde4a0)',catColor:'Housing support',deadline:'June 30, 2026',donors:23,story:'Sophia is a single mother of two young children who lost her apartment in a devastating fire earlier this year. She and her kids spent the first two months in an emergency shelter while she searched for stable housing. She currently works part-time as a home health aide and studies for her LPN license on weekends. Help her secure a deposit and first month\'s rent on a new apartment.'},
+  {id:4,name:'The Rivera Family',cat:'fo',catLabel:'Food & Nutrition',emoji:'🥗',loc:'Jacksonville, FL',blurb:'Family of five facing food insecurity after job loss. Working with local pantry but need support.',goal:800,raised:650,weekly:false,weeklyAmt:0,tagCls:'tf',bg:'linear-gradient(135deg,var(--uw-green-light),#a5d6a7)',catColor:'Food & Nutrition',deadline:'May 31, 2026',donors:62,story:'Carlos Rivera was laid off from his warehouse job of 11 years when the facility closed. His wife Lucinda works part-time, but with three school-age children and a grandmother living with them, the family\'s grocery budget simply doesn\'t stretch far enough. They visit the local food pantry weekly but need supplemental support for fresh produce and protein.'},
+  {id:5,name:'James W.',cat:'ve',catLabel:'Veterans',emoji:'🎖️',loc:'Jacksonville, FL',blurb:'Army veteran navigating PTSD and housing instability. Seeking counseling and rental assistance.',goal:4000,raised:2800,weekly:true,weeklyAmt:410,tagCls:'tv',bg:'linear-gradient(135deg,#F0E8FF,#d4b8f0)',catColor:'Veterans support',deadline:'August 31, 2026',donors:76,story:'James served two tours in Afghanistan and returned home with severe PTSD and a traumatic brain injury. After a difficult few years, he connected with the VA but is still on a waiting list for housing assistance. He needs help with three months of rental assistance while he completes his counseling program and gets back on his feet. James wants to become a peer support specialist to help other veterans.'},
+  {id:6,name:'Amara O.',cat:'ed',catLabel:'Education',emoji:'📚',loc:'Jacksonville, FL',blurb:'Refugee student with exceptional grades pursuing a computer science scholarship at community college.',goal:1500,raised:500,weekly:false,weeklyAmt:0,tagCls:'te',bg:'linear-gradient(135deg,var(--uw-blue-light),#b3cef0)',catColor:'Education',deadline:'August 15, 2026',donors:31,story:'Amara arrived in Jacksonville from Somalia three years ago with her mother and two younger siblings. She earned a 3.98 GPA in high school and was accepted into the Computer Science program at Florida State College at Jacksonville. A small scholarship covers tuition, but she needs help with her laptop, internet access, textbooks, and transportation. Her dream is to become a software engineer.'},
+  {id:7,name:'Dr. Keisha B.',cat:'he',catLabel:'Health',emoji:'🩺',loc:'Jacksonville, FL',blurb:'Community doctor battling cancer while running a free clinic for uninsured residents.',goal:8000,raised:5200,weekly:true,weeklyAmt:550,tagCls:'th',bg:'linear-gradient(135deg,var(--uw-red-light),#f5b3b3)',catColor:'Health support',deadline:'September 30, 2026',donors:112,story:'Dr. Keisha has operated a free medical clinic in the Northside neighborhood for 12 years. Last fall she was diagnosed with Stage 2 breast cancer. Her treatment costs are draining the clinic\'s operating reserve, putting both her care and her patients\' access to healthcare at risk. Your donation directly supports Dr. Keisha\'s treatment and keeps the clinic open for over 300 uninsured patients who rely on it.'},
+  {id:8,name:'The Nguyen Family',cat:'ho',catLabel:'Housing',emoji:'🏡',loc:'Jacksonville, FL',blurb:'Vietnamese immigrant family of four facing eviction after predatory landlord doubled their rent.',goal:5000,raised:2100,weekly:false,weeklyAmt:0,tagCls:'tho',bg:'linear-gradient(135deg,var(--uw-gold-light),#fde4a0)',catColor:'Housing support',deadline:'July 15, 2026',donors:44,story:'Minh and Lan Nguyen immigrated to Jacksonville 8 years ago. They have two children in elementary school and Minh works as a mechanic while Lan is a home healthcare aide. Their landlord doubled the rent with 30 days notice — a tactic that is unfortunately legal in Florida. They are working with a housing attorney but need funds to secure a new apartment deposit and moving costs while the case is reviewed.'},
+  {id:9,name:'Rosa & Miguel D.',cat:'fo',catLabel:'Food & Nutrition',emoji:'🌽',loc:'Jacksonville, FL',blurb:'Elderly couple living on fixed income; facing rising grocery costs and transportation barriers.',goal:600,raised:480,weekly:false,weeklyAmt:0,tagCls:'tf',bg:'linear-gradient(135deg,var(--uw-green-light),#a5d6a7)',catColor:'Food & Nutrition',deadline:'May 31, 2026',donors:38,story:'Rosa (78) and Miguel (81) Dominguez have lived in the same Northeast Jacksonville neighborhood for 40 years. Their combined Social Security income of $1,640/month barely covers rent and utilities. With no car and the nearest grocery store 3 miles away, they rely on a volunteer-driven meal program that recently reduced its service days. Your support pays for grocery delivery and supplemental meals.'},
+  {id:10,name:'Sgt. Patricia H.',cat:'ve',catLabel:'Veterans',emoji:'🏅',loc:'Jacksonville, FL',blurb:'Female Marine sergeant, single parent, navigating VA backlog for disability benefits.',goal:5500,raised:3900,weekly:true,weeklyAmt:620,tagCls:'tv',bg:'linear-gradient(135deg,#F0E8FF,#d4b8f0)',catColor:'Veterans support',deadline:'October 31, 2026',donors:98,story:'Patricia served 12 years as a Marine Corps logistics sergeant, including deployments to Iraq and Bahrain. She returned home with hearing loss and a spinal injury sustained in a vehicle accident during her service. Her VA disability claim was filed 14 months ago and remains in the backlog. In the meantime, she\'s supporting her 9-year-old son on a part-time salary. Your donation helps cover rent, medication co-pays, and childcare while her claim is processed.'},
+];
+
+const catMeta = {
+  e:{label:'Education',cls:'te',emoji:'🎓',bg:'linear-gradient(135deg,var(--uw-blue-light),#b3cef0)'},
+  h:{label:'Health',cls:'th',emoji:'🏥',bg:'linear-gradient(135deg,var(--uw-red-light),#f5b3b3)'},
+  ho:{label:'Housing',cls:'tho',emoji:'🏠',bg:'linear-gradient(135deg,var(--uw-gold-light),#fde4a0)'},
+  f:{label:'Food & Nutrition',cls:'tf',emoji:'🥗',bg:'linear-gradient(135deg,var(--uw-green-light),#a5d6a7)'},
+  v:{label:'Veterans',cls:'tv',emoji:'🎖️',bg:'linear-gradient(135deg,#F0E8FF,#d4b8f0)'},
+  o:{label:'Other',cls:'',emoji:'✦',bg:'linear-gradient(135deg,var(--cream),#D8D5CC)'},
+};
+
+/* ---- STATE ---- */
+let currentProfile = profiles[2];   // sample recipient used in the settings preview
+let selAdminCat = 'ho';
+let needs = [];
+
+/* ---- ALLOCATION ENGINE ---- */
+/* The split is defined as an open-ended list of buckets rather than a fixed
+   restricted/unrestricted pair, so new destinations can be added at any time
+   without touching this code. Bucket percentages apply to the NET gift (after
+   processing fees) and must total 100. */
+const alloc = {
+  feeModel: 'deducted',    // 'deducted' | 'added' | 'absorbed'
+  feePct: 2.9,             // processor % rate
+  feeFixed: 0.30,          // processor per-transaction fixed fee
+  allowDonorAdjust: false, // let donors move the split on the donor site
+  buckets: [
+    { id:'restricted',   name:'Restricted',   pct:85, toRecipient:true,  core:true,
+      desc:'Held for the named recipient — cannot be spent elsewhere', purpose:'' },
+    { id:'unrestricted', name:'Unrestricted', pct:15, toRecipient:false, core:true,
+      desc:'UWNEFL general fund — programs, staffing, operations', purpose:'' }
+  ]
+};
+
+/* Colour slots cycle for buckets added by the admin. */
+const bucketColors = ['res','unres','c3','c4','c5','c6'];
+function bucketColor(i) { return bucketColors[i % bucketColors.length]; }
+
+/* Convenience accessors so callers never assume a fixed bucket list. */
+function recipientBucket() { return alloc.buckets.find(b => b.toRecipient) || alloc.buckets[0]; }
+function otherBuckets()    { return alloc.buckets.filter(b => !b.toRecipient); }
+function bucketTotal()     { return alloc.buckets.reduce((t, b) => t + (Number(b.pct) || 0), 0); }
+function nextBucketId()    { let n = alloc.buckets.length + 1;
+                             while (alloc.buckets.some(b => b.id === 'bucket' + n)) n++;
+                             return 'bucket' + n; }
+
+/* What each non-recipient bucket funds, phrased per recipient category. Used
+   only when a bucket has no explicit purpose text of its own. */
+const catPurpose = {
+  ed: 'finding tutoring, tuition aid and school resources for students across Northeast Florida',
+  he: 'connecting neighbors to healthcare, prescriptions and mental-health services',
+  ho: 'finding the appropriate housing and rental assistance for families across Northeast Florida',
+  fo: 'keeping food pantries and nutrition programs stocked across Northeast Florida',
+  ve: 'supporting veterans and their families across Northeast Florida'
+};
+const catPurposeShort = {
+  ed: 'education programs across NEFL',
+  he: 'health &amp; wellness services across NEFL',
+  ho: 'housing support across NEFL',
+  fo: 'food &amp; nutrition programs across NEFL',
+  ve: 'veteran services across NEFL'
+};
+
+function bucketPurpose(b, p, short) {
+  if (b.purpose && b.purpose.trim()) return b.purpose.trim();
+  if (b.id === 'unrestricted') {
+    return short ? ((p && catPurposeShort[p.cat]) || 'the UWNEFL general fund')
+                 : ((p && catPurpose[p.cat]) || 'United Way NEFL\'s broader work across Northeast Florida');
+  }
+  return b.desc || b.name;
+}
+
+function shortName(name) {
+  if (!name) return 'the recipient';
+  const parts = name.trim().split(/\s+/);
+  if (/^the$/i.test(parts[0])) return name;
+  if (/^(dr|mr|mrs|ms|sgt|capt|rev|prof)\.?$/i.test(parts[0])) return parts.slice(0, 2).join(' ');
+  return parts[0];
+}
+
+const r2 = n => Math.round(n * 100) / 100;
+const money  = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const money0 = n => '$' + Math.round(n).toLocaleString('en-US');
+const perDollar = (part, whole) => whole > 0 ? (part / whole * 100).toFixed(1) + '¢' : '0.0¢';
+const pctOf = (part, whole) => whole > 0 ? (part / whole * 100) : 0;
+
+/* Single source of truth for the split. Returns the processing fee plus one
+   entry per configured bucket; processing + every bucket amount always equals
+   `charge` exactly (the last bucket absorbs any rounding remainder). */
+function computeAlloc(amount, cfg) {
+  cfg = cfg || alloc;
+  const gift = Math.max(0, parseFloat(amount) || 0);
+  const fee  = gift > 0 ? r2(gift * (cfg.feePct / 100) + cfg.feeFixed) : 0;
+  let charge, processing, net, absorbed;
+
+  if (cfg.feeModel === 'added') {           // donor voluntarily covers the fee
+    charge = r2(gift + fee); processing = fee; net = gift; absorbed = 0;
+  } else if (cfg.feeModel === 'absorbed') { // UWNEFL pays the fee itself
+    charge = gift; processing = 0; net = gift; absorbed = fee;
+  } else {                                  // 'deducted' — fee comes out of the gift
+    charge = gift; processing = Math.min(fee, gift); net = r2(gift - processing); absorbed = 0;
+  }
+
+  const total = bucketTotal() || 100;
+  let running = 0;
+  const buckets = cfg.buckets.map((b, i) => {
+    const isLast = i === cfg.buckets.length - 1;
+    const amt = isLast ? r2(net - running) : r2(net * ((Number(b.pct) || 0) / total));
+    running = r2(running + amt);
+    return { ...b, index: i, color: bucketColor(i), amount: amt,
+             shareOfCharge: pctOf(amt, charge) };
+  });
+
+  const byId = {};
+  buckets.forEach(b => { byId[b.id] = b.amount; });
+  const rec = buckets.find(b => b.toRecipient) || buckets[0] || {amount: 0};
+
+  return { gift, fee, charge, processing, net, absorbed, buckets, byId,
+           restricted: rec.amount,                                  // legacy alias
+           unrestricted: r2(net - rec.amount),                      // everything not for the recipient
+           feeModel: cfg.feeModel };
+}
+
+const feeModelLabel = {
+  deducted: 'Deducted from gift',
+  added:    'Donor covers fee',
+  absorbed: 'UWNEFL absorbs fee'
+};
+
+/* Builds a stacked bar of arbitrary width segments into `host`. */
+function renderAllocBar(host, a) {
+  if (!host) return;
+  const seg = (cls, val, label) =>
+    `<div class="alloc-seg ${cls}" style="width:${val.toFixed(2)}%;min-width:${val > 0 ? 3 : 0}px">` +
+    `${val >= 13 ? label : ''}</div>`;
+  let html = seg('fee', pctOf(a.processing, a.charge), pctOf(a.processing, a.charge).toFixed(1) + '%');
+  a.buckets.forEach(b => {
+    const w = pctOf(b.amount, a.charge);
+    html += seg(b.color, w, w.toFixed(1) + '%');
+  });
+  host.innerHTML = html;
+}
+
+/* The donor-facing sentence. Enumerates however many buckets are configured. */
+function allocMessage(p, a, short) {
+  const who = p ? p.name : 'the recipient';
+  const rec = a.buckets.find(b => b.toRecipient) || a.buckets[0];
+  const others = a.buckets.filter(b => b !== rec && b.pct > 0);
+  const recPct = rec ? Math.round(rec.pct) : 0;
+
+  if (short) {
+    const parts = [`<strong>${recPct}%</strong> supports ${shortName(who)}`];
+    others.forEach(b => parts.push(`<strong>${Math.round(b.pct)}%</strong> funds ${bucketPurpose(b, p, true)}`));
+    return parts.join(' · ') + '.';
+  }
+
+  const lead = a.processing > 0 && a.feeModel === 'deducted'
+    ? `After the ${money(a.processing)} processing fee, ` : '';
+  const giftRef = a.feeModel === 'deducted' ? 'your gift' : `your ${money(a.gift)} gift`;
+  let msg = `${lead}<strong>${recPct}%</strong> of ${giftRef} — <strong>${money(rec ? rec.amount : 0)}</strong> — ` +
+            `goes directly to support ${who}`;
+  const endStop = txt => txt.replace(/\.+$/, '') + '.';   // names like "Sophia L." already end in a period
+  if (!others.length) return endStop(msg);
+  if (others.length === 1) {
+    const b = others[0];
+    return msg + `, and <strong>${Math.round(b.pct)}%</strong> — <strong>${money(b.amount)}</strong> — ` +
+           `supports United Way NEFL's work ${bucketPurpose(b, p, false)}.`;
+  }
+  const list = others.map(b =>
+    `<strong>${Math.round(b.pct)}%</strong> (${money(b.amount)}) toward ${bucketPurpose(b, p, false)}`);
+  return endStop(msg) + ` The remaining ${Math.round(others.reduce((t, b) => t + b.pct, 0))}% is allocated as ` +
+         list.slice(0, -1).join('; ') + '; and ' + endStop(list[list.length - 1]);
+}
+/* ---- ALLOCATION SETTINGS CONTROLLER ---- */
+/* Fired whenever the policy changes so donor-facing views can re-render. */
+function notifyAllocChange() {
+  document.dispatchEvent(new CustomEvent('alloc-change', {
+    detail: JSON.parse(JSON.stringify(alloc))
+  }));
+}
+
+function afterAllocChange() {
+  renderAllocSettings();
+  notifyAllocChange();
+}
+
+/* ── bucket editing ── */
+function setBucketPct(id, v) {
+  const b = alloc.buckets.find(x => x.id === id);
+  if (!b) return;
+  b.pct = Math.max(0, Math.min(100, parseFloat(v) || 0));
+  afterAllocChange();
+}
+function setBucketName(id, v) {
+  const b = alloc.buckets.find(x => x.id === id);
+  if (b) { b.name = v; afterAllocChange(); }
+}
+function setBucketPurpose(id, v) {
+  const b = alloc.buckets.find(x => x.id === id);
+  if (b) { b.purpose = v; afterAllocChange(); }
+}
+function addBucket() {
+  if (alloc.buckets.length >= 6) {
+    showToast('Six allocation buckets is the practical maximum');
+    return;
+  }
+  // Take the new bucket's share from whatever is currently unallocated, or
+  // from the largest bucket if the split already totals 100%.
+  const remainder = r2(100 - bucketTotal());
+  let pct = remainder > 0 ? remainder : 0;
+  if (pct === 0) {
+    const biggest = alloc.buckets.reduce((m, b) => (b.pct > m.pct ? b : m), alloc.buckets[0]);
+    pct = Math.min(5, Math.max(0, biggest.pct - 1));
+    biggest.pct = r2(biggest.pct - pct);
+  }
+  alloc.buckets.push({
+    id: nextBucketId(), name: 'New allocation', pct: pct,
+    toRecipient: false, core: false, desc: '', purpose: ''
+  });
+  afterAllocChange();
+  showToast('Allocation bucket added — name it and set its share');
+}
+function removeBucket(id) {
+  const i = alloc.buckets.findIndex(b => b.id === id);
+  if (i < 0 || alloc.buckets[i].core) return;
+  const freed = alloc.buckets[i].pct;
+  alloc.buckets.splice(i, 1);
+  // Return the freed share to the recipient bucket so the total stays at 100.
+  const rec = recipientBucket();
+  if (rec) rec.pct = r2(rec.pct + freed);
+  afterAllocChange();
+}
+function balanceBuckets() {
+  const diff = r2(100 - bucketTotal());
+  if (diff === 0) return;
+  const rec = recipientBucket();
+  if (rec) rec.pct = Math.max(0, r2(rec.pct + diff));
+  afterAllocChange();
+  showToast('Balanced to 100%');
+}
+
+/* ── fee + donor policy ── */
+function setFeeModel(model) { alloc.feeModel = model; afterAllocChange(); }
+function setFeeRate(pct, fixed) {
+  if (pct !== null)   alloc.feePct   = Math.max(0, Math.min(10, parseFloat(pct) || 0));
+  if (fixed !== null) alloc.feeFixed = Math.max(0, Math.min(5, parseFloat(fixed) || 0));
+  afterAllocChange();
+}
+function setAllowDonorAdjust(on) { alloc.allowDonorAdjust = !!on; afterAllocChange(); }
+
+function saveAllocSettings() {
+  const total = bucketTotal();
+  if (Math.abs(total - 100) > 0.001) {
+    showToast(`Cannot save — allocations total ${r2(total)}%, they must total 100%`);
+    return;
+  }
+  const unnamed = alloc.buckets.find(b => !b.name.trim());
+  if (unnamed) { showToast('Every allocation bucket needs a name'); return; }
+  showToast(`Allocation policy saved — ${alloc.buckets.map(b => Math.round(b.pct) + '% ' + b.name).join(' / ')}`);
+}
+
+/* ── renders the settings panel from the current config ── */
+function renderAllocSettings() {
+  const rowsHost = document.getElementById('set-buckets');
+  if (!rowsHost) return;
+  const total = r2(bucketTotal());
+  const balanced = Math.abs(total - 100) < 0.001;
+
+  rowsHost.innerHTML = alloc.buckets.map((b, i) => `
+    <div class="bk-row">
+      <span class="bk-swatch ${bucketColor(i)}"></span>
+      <div class="bk-fields">
+        <input class="bk-name" type="text" value="${escAttr(b.name)}" placeholder="Bucket name"
+               ${b.core ? 'readonly title="Core bucket — name is fixed"' : ''}
+               oninput="setBucketName('${b.id}', this.value)"/>
+        <input class="bk-purpose" type="text" value="${escAttr(b.purpose)}"
+               placeholder="${b.toRecipient ? 'Goes to the named recipient' : 'What this funds — blank uses the recipient\'s category'}"
+               ${b.toRecipient ? 'disabled' : ''}
+               oninput="setBucketPurpose('${b.id}', this.value)"/>
+      </div>
+      <div class="bk-pct">
+        <input type="number" min="0" max="100" step="1" value="${b.pct}"
+               oninput="setBucketPct('${b.id}', this.value)"/><span>%</span>
+      </div>
+      <button class="bk-del" ${b.core ? 'disabled title="Core bucket — cannot be removed"' : 'title="Remove bucket"'}
+              onclick="removeBucket('${b.id}')">×</button>
+    </div>`).join('');
+
+  const tot = document.getElementById('set-total');
+  if (tot) {
+    tot.className = 'bk-total ' + (balanced ? 'ok' : 'bad');
+    tot.innerHTML = balanced
+      ? `Total <strong>100%</strong> — balanced`
+      : `Total <strong>${total}%</strong> — ${total > 100 ? r2(total - 100) + '% over' : r2(100 - total) + '% unallocated'}` +
+        ` <button class="bk-balance" onclick="balanceBuckets()">Balance</button>`;
+  }
+
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e && e.value != v) e.value = v; };
+  setVal('set-feepct', alloc.feePct);
+  setVal('set-feefixed', alloc.feeFixed.toFixed(2));
+  const allowBox = document.getElementById('set-allow');
+  if (allowBox) allowBox.checked = alloc.allowDonorAdjust;
+  document.querySelectorAll('#panel-settings .fee-seg button').forEach(b => {
+    b.classList.toggle('active', b.dataset.model === alloc.feeModel);
+  });
+
+  const sample = currentProfile || profiles[0];
+  const a = computeAlloc(50);
+
+  const who = document.getElementById('set-msg-who');
+  if (who) who.textContent = sample.name;
+  const msg = document.getElementById('set-msg-preview');
+  if (msg) msg.innerHTML = allocMessage(sample, a, false);
+
+  const body = document.getElementById('set-preview-body');
+  if (body) {
+    body.innerHTML = `<div class="alloc-bar" id="sp-bar"></div>
+      <div class="alloc-rows">
+        <div class="alloc-row"><span class="alloc-dot fee"></span>
+          <span class="alloc-lbl">Processing fee<small>${alloc.feePct}% + ${money(alloc.feeFixed)}</small></span>
+          <span class="alloc-right"><span class="alloc-amt fee">${money(a.processing)}</span>
+          <span class="alloc-cents">${perDollar(a.processing, a.charge)} per $1</span></span></div>
+        ${a.buckets.map(b => `
+        <div class="alloc-row"><span class="alloc-dot ${b.color}"></span>
+          <span class="alloc-lbl">${escHtml(b.name)}<small>${Math.round(b.pct)}% of net gift</small></span>
+          <span class="alloc-right"><span class="alloc-amt ${b.color}">${money(b.amount)}</span>
+          <span class="alloc-cents">${perDollar(b.amount, a.charge)} per $1</span></span></div>`).join('')}
+      </div>
+      <div class="alloc-total-row"><span>Donor is charged</span><strong>${money(a.charge)}</strong></div>`;
+    renderAllocBar(document.getElementById('sp-bar'), a);
+  }
+}
+
+function escAttr(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function escHtml(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* ---- ADMIN DASHBOARD ---- */
+/* Navigation to other pages is owned by the host app; stubbed here. */
+
+
+556189
+function buildAdminList() {
+  const table = document.getElementById('admin-profile-table');
+  const rows = profiles.map(p => {
+    const pct = Math.round(p.raised/p.goal*100);
+    return `<div class="pt-row">
+      <div class="pt-person"><div class="pt-avatar" style="background:${p.bg}">${p.emoji}</div><div><div class="pt-name">${p.name}</div><div class="pt-loc">${p.loc}</div></div></div>
+      <span class="pt-tag ${p.tagCls}">${p.catLabel}</span>
+      <span>$${p.goal.toLocaleString()}</span>
+      <span class="pt-raised">$${p.raised.toLocaleString()}</span>
+      <div class="pt-pct-wrap"><span class="pt-pct">${pct}%</span><div class="mini-prog"><div class="mini-prog-fill" style="width:${pct}%"></div></div></div>
+      <div class="pt-actions"><button class="pt-act" onclick="adminTab('add')">Edit</button><button class="pt-act danger">Archive</button></div>
+    </div>`;
+  }).join('');
+  table.innerHTML = `<div class="pt-header"><span>Recipient</span><span>Category</span><span>Goal</span><span>Raised</span><span>Progress</span><span>Actions</span></div>${rows}`;
+}
+
+/* ── ADMIN FORM ── */
+function adminTab(tab) {
+  document.getElementById('panel-add').style.display = tab==='add'?'block':'none';
+  document.getElementById('panel-list').style.display = tab==='list'?'block':'none';
+  document.getElementById('panel-settings').style.display = tab==='settings'?'block':'none';
+  document.getElementById('tn-add').classList.toggle('active', tab==='add');
+  document.getElementById('tn-list').classList.toggle('active', tab==='list');
+  document.getElementById('tn-settings').classList.toggle('active', tab==='settings');
+  const crumbs = {add:'Add new profile', list:'All profiles', settings:'Allocation settings'};
+  document.getElementById('admin-crumb').textContent = crumbs[tab] || 'All profiles';
+  document.getElementById('sb-add').classList.toggle('active', tab==='add');
+  document.getElementById('sb-list').classList.toggle('active', tab==='list');
+  document.getElementById('sb-settings').classList.toggle('active', tab==='settings');
+  if (tab === 'settings') renderAllocSettings();
+}
+function selectCat(btn, key) {
+  document.querySelectorAll('.cat-pill').forEach(b => b.className='cat-pill');
+  btn.classList.add('sel-'+key);
+  selAdminCat = key; updatePreview();
+}
+function updatePreview() {
+  const name = document.getElementById('f-name').value||'Recipient name';
+  const blurb = document.getElementById('f-blurb').value||'';
+  const goal = parseInt(document.getElementById('f-goal').value)||0;
+  const raised = parseInt(document.getElementById('f-raised').value)||0;
+  const emoji = document.getElementById('emoji-input').value||catMeta[selAdminCat].emoji;
+  const pct = goal>0?Math.min(100,Math.round(raised/goal*100)):0;
+  const cat = catMeta[selAdminCat];
+  document.getElementById('pc-name').textContent = name;
+  document.getElementById('pc-blurb').textContent = blurb||'';
+  document.getElementById('pc-blurb').style.color = blurb?'var(--muted)':'var(--border)';
+  document.getElementById('pc-emoji').textContent = emoji;
+  document.getElementById('pc-img').style.background = cat.bg;
+  const tagEl = document.getElementById('pc-tag');
+  tagEl.textContent = cat.label; tagEl.className='pc-tag '+cat.cls;
+  document.getElementById('pc-goal-lbl').textContent = `$${raised.toLocaleString()} of $${goal.toLocaleString()}`;
+  document.getElementById('pc-pct').textContent = pct+'%';
+  document.getElementById('pc-fill').style.width = pct+'%';
+}
+function updateBlurb(el){document.getElementById('blurb-count').textContent=el.value.length;}
+function updateStoryCount(el){document.getElementById('story-count').textContent=el.value.length;}
+function selectDeadline(btn,val){document.querySelectorAll('.dl-opt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('f-deadline').style.display=val==='custom'?'block':'none';}
+function previewPhoto(input){if(!input.files||!input.files[0])return;const r=new FileReader();r.onload=e=>{document.getElementById('preview-img').src=e.target.result;document.getElementById('photo-placeholder').style.display='none';document.getElementById('photo-preview').style.display='block';document.getElementById('pc-img').style.backgroundImage=`url(${e.target.result})`;document.getElementById('pc-img').style.backgroundSize='cover';document.getElementById('pc-emoji').style.display='none';};r.readAsDataURL(input.files[0]);}
+function removePhoto(e){e.stopPropagation();document.getElementById('photo-placeholder').style.display='block';document.getElementById('photo-preview').style.display='none';document.getElementById('pc-img').style.backgroundImage='none';document.getElementById('pc-emoji').style.display='block';document.getElementById('photo-input').value='';updatePreview();}
+function publishProfile(){const name=document.getElementById('f-name').value.trim();if(!name){alert('Please enter a name or alias.');return;}const goal=parseInt(document.getElementById('f-goal').value);if(!goal||goal<100){alert('Please set a goal amount (min $100).');return;}showToast(`"${name}" published to donor site!`);setTimeout(()=>adminTab('list'),1800);}
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+/* ---- INIT ---- */
+buildAdminList();
+adminTab('list');
+renderAllocSettings();
+</script>
+</body>
+</html>

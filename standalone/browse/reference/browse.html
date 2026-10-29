@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>C3S.ai × United Way NEFL — Give</title>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&family=Palanquin:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --uw-blue:#003F87; --uw-blue-mid:#1A5FAD; --uw-blue-light:#E8EEF7; --uw-blue-pale:#F0F4FB;
+  --uw-red:#BE0000; --uw-red-light:#FAEAEA;
+  --uw-gold:#F5A800; --uw-gold-light:#FEF4DC;
+  --uw-green:#2E7D32; --uw-green-light:#E8F5E9;
+  --uw-purple:#5B2DA8; --uw-purple-light:#F0E8FF;
+  --off-white:#F7F6F2; --cream:#F0EDE5; --dark:#111827;
+  --mid:#374151; --muted:#6B7280; --border:#D1D5DB;
+  --border-light:#E5E7EB; --white:#FFFFFF;
+  --pp-blue:#003087; --pp-cyan:#009cde; --pp-gold:#FFC439;
+  --sidebar-w:252px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{font-family:'Palanquin',sans-serif;background:var(--off-white);color:var(--dark);min-height:100vh;}
+.page{display:none;min-height:100vh;} .page.active{display:block;}
+
+/* ── COBRAND BAR ── */
+.cobrand-bar{background:var(--uw-blue);padding:0 2.5rem;height:50px;display:flex;align-items:center;justify-content:space-between;}
+.cb-left{display:flex;align-items:center;gap:16px;}
+.uw-logo-wrap{display:flex;align-items:center;gap:9px;}
+.uw-circle{width:32px;height:32px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.uw-circle-inner{width:20px;height:20px;border-radius:50%;background:conic-gradient(var(--uw-red) 0deg 120deg,var(--uw-gold) 120deg 240deg,var(--uw-blue) 240deg 360deg);position:relative;}
+.uw-circle-inner::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;background:white;border-radius:50%;}
+.uw-name{font-family:'Antonio',sans-serif;font-size:12px;font-weight:500;color:white;line-height:1.25;}
+.uw-name small{display:block;font-family:'Palanquin',sans-serif;font-size:9.5px;font-weight:300;color:rgba(255,255,255,.6);letter-spacing:.4px;}
+.cb-div{width:1px;height:26px;background:rgba(255,255,255,.22);}
+.c3s-sm{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;color:white;letter-spacing:-.2px;}
+.c3s-sm span{color:var(--uw-gold);}
+.cb-right{font-size:10.5px;color:rgba(255,255,255,.45);font-family:'Palanquin',sans-serif;letter-spacing:.5px;}
+
+/* ── WEEKLY DONOR TICKER ── */
+.ticker-bar{background:var(--uw-gold);padding:0 2.5rem;height:36px;display:flex;align-items:center;gap:0;overflow:hidden;position:relative;}
+.ticker-label{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;color:var(--dark);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;margin-right:16px;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.ticker-dot{width:7px;height:7px;border-radius:50%;background:var(--uw-red);animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(.85);}}
+.ticker-track{flex:1;overflow:hidden;position:relative;}
+.ticker-inner{display:flex;gap:0;animation:ticker 38s linear infinite;white-space:nowrap;}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.ticker-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--dark);padding:0 28px 0 0;white-space:nowrap;}
+.ticker-item .ti-amt{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;color:var(--uw-blue);}
+.ticker-item .ti-sep{color:rgba(0,0,0,.25);}
+
+/* ── NAV ── */
+nav{background:var(--white);border-bottom:2px solid var(--uw-blue-light);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,63,135,.07);}
+.nav-logo{font-family:'Antonio',sans-serif;font-size:21px;font-weight:700;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:6px;}
+.nav-logo span{color:var(--uw-blue);}
+.nav-pipe{color:var(--border);font-weight:300;}
+.nav-uw{font-size:13px;font-weight:500;color:var(--uw-blue);margin-left:2px;}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+.nav-admin{font-size:13px;padding:6px 14px;border:1.5px solid var(--uw-blue);border-radius:8px;cursor:pointer;background:transparent;color:var(--uw-blue);font-family:'Palanquin',sans-serif;font-weight:500;transition:all .15s;}
+.nav-admin:hover{background:var(--uw-blue);color:white;}
+.nav-cta{font-size:13px;padding:6px 14px;border:none;border-radius:8px;cursor:pointer;background:var(--uw-blue);color:white;font-family:'Palanquin',sans-serif;font-weight:600;}
+.breadcrumb{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);}
+.breadcrumb a{color:var(--muted);text-decoration:none;cursor:pointer;} .breadcrumb a:hover{color:var(--uw-blue);}
+.breadcrumb span{color:var(--dark);font-weight:500;}
+.secure-badge{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);font-weight:500;}
+.secure-badge svg{width:13px;height:13px;color:var(--uw-green);}
+
+/* ── STEPS ── */
+.steps{background:var(--white);border-bottom:1px solid var(--border-light);padding:12px 2.5rem;display:flex;align-items:center;justify-content:center;}
+.step-item{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);}
+.step-item.done{color:var(--uw-blue);font-weight:500;} .step-item.active{color:var(--dark);font-weight:600;}
+.step-dot{width:25px;height:25px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;background:var(--white);}
+.step-item.done .step-dot{background:var(--uw-blue);border-color:var(--uw-blue);color:white;font-size:12px;}
+.step-item.active .step-dot{border-color:var(--uw-blue);color:var(--uw-blue);}
+.step-divider{width:55px;height:2px;background:var(--border-light);margin:0 10px;}
+
+/* ══════════════ PAGE 1: BROWSE ══════════════ */
+.hero{background:var(--white);border-bottom:1px solid var(--border-light);padding:3rem 2.5rem 2.5rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;right:0;width:45%;height:100%;background:linear-gradient(135deg,var(--uw-blue-pale),transparent 70%);pointer-events:none;}
+.hero::after{content:'';position:absolute;top:-50px;right:-30px;width:280px;height:280px;border-radius:50%;border:55px solid var(--uw-blue-light);opacity:.55;pointer-events:none;}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--uw-blue);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.ey-dot{width:6px;height:6px;border-radius:50%;background:var(--uw-red);display:inline-block;}
+.hero h1{font-family:'Antonio',sans-serif;font-size:50px;font-weight:700;line-height:1.05;max-width:580px;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--uw-blue);position:relative;}
+.hero h1 em::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:4px;background:var(--uw-gold);border-radius:2px;}
+.hero p{font-size:15px;color:var(--muted);line-height:1.75;max-width:480px;font-weight:300;}
+
+/* ── LIVE STATS BAR ── */
+.stats-wrap{background:var(--uw-blue);}
+.stats-inner{display:grid;grid-template-columns:repeat(5,1fr);}
+.stat-block{padding:1.1rem 2.5rem;border-right:1px solid rgba(255,255,255,.12);}
+.stat-block:last-child{border-right:none;}
+.stat-num{font-family:'Antonio',sans-serif;font-size:30px;font-weight:700;color:white;line-height:1;margin-bottom:3px;}
+.stat-num span{color:var(--uw-gold);}
+.stat-desc{font-size:11px;color:rgba(255,255,255,.55);font-weight:300;letter-spacing:.2px;}
+
+/* ── PROGRESS TICKER STRIP ── */
+.progress-strip{background:var(--white);border-bottom:1px solid var(--border-light);padding:1rem 2.5rem;display:flex;gap:16px;align-items:center;overflow-x:auto;}
+.ps-label{font-family:'Antonio',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+.ps-item{display:flex;align-items:center;gap:10px;background:var(--off-white);border:1px solid var(--border-light);border-radius:10px;padding:8px 14px;flex-shrink:0;}
+.ps-cat{font-size:12px;font-weight:600;color:var(--mid);white-space:nowrap;}
+.ps-bar-wrap{width:90px;height:5px;background:var(--border-light);border-radius:3px;}
+.ps-bar{height:100%;border-radius:3px;}
+.ps-amt{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;white-space:nowrap;}
+
+/* ── FILTER CONTROLS ── */
+.filter-section{padding:1.1rem 2.5rem;background:var(--white);border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.filter-label{font-size:11px;color:var(--muted);font-weight:600;margin-right:4px;text-transform:uppercase;letter-spacing:.6px;}
+.chip{font-size:12.5px;padding:5px 14px;border-radius:100px;border:1.5px solid var(--border);cursor:pointer;background:transparent;color:var(--mid);font-family:'Palanquin',sans-serif;font-weight:400;transition:all .15s;}
+.chip:hover{border-color:var(--uw-blue-mid);color:var(--uw-blue);}
+.chip.active{background:var(--uw-blue);border-color:var(--uw-blue);color:white;font-weight:500;}
+.chip.cat-all.active{background:var(--uw-blue);}
+.chip.cat-ed.active{background:var(--uw-blue);}
+.chip.cat-he.active{background:var(--uw-red);}
+.chip.cat-ho.active{background:#92620a;}
+.chip.cat-fo.active{background:var(--uw-green);}
+.chip.cat-ve.active{background:var(--uw-purple);}
+.filter-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.sort-select{font-size:12.5px;padding:5px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--mid);font-family:'Palanquin',sans-serif;outline:none;cursor:pointer;}
+.sort-select:focus{border-color:var(--uw-blue);}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--off-white);border:1.5px solid var(--border);border-radius:8px;padding:5px 12px;}
+.search-box svg{width:13px;height:13px;color:var(--muted);}
+.search-box input{border:none;background:transparent;font-size:12.5px;font-family:'Palanquin',sans-serif;color:var(--dark);outline:none;width:170px;}
+.search-box input::placeholder{color:var(--muted);}
+
+/* ── GRID ── */
+.grid-section{padding:1.75rem 2.5rem;}
+.grid-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.grid-title{font-family:'Antonio',sans-serif;font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.grid-count{font-size:12px;color:var(--muted);}
+.donor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(218px,1fr));gap:14px;}
+
+.dcard{background:var(--white);border:1px solid var(--border-light);border-radius:13px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;}
+.dcard:hover{transform:translateY(-5px);border-color:var(--uw-blue-mid);box-shadow:0 14px 36px rgba(0,63,135,.13);}
+.dcard-img{width:100%;height:118px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;}
+.dcard-weekly{position:absolute;top:8px;right:8px;font-size:9.5px;font-weight:600;padding:3px 8px;border-radius:100px;background:var(--uw-gold);color:var(--dark);font-family:'Palanquin',sans-serif;letter-spacing:.3px;}
+.dcard-body{padding:12px 14px 13px;}
+.dcard-name{font-family:'Antonio',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px;color:var(--dark);}
+.dcard-tag{display:inline-block;font-size:10.5px;padding:2px 9px;border-radius:100px;margin-bottom:7px;font-weight:500;font-family:'Palanquin',sans-serif;}
+.dcard-blurb{font-size:12px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px;font-weight:300;}
+.dcard-progress{margin-bottom:10px;}
+.dcard-prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;}
+.dcard-prog-label{color:var(--muted);}
+.dcard-prog-pct{font-weight:700;color:var(--uw-blue);}
+.prog-track{height:4px;background:var(--cream);border-radius:2px;}
+.prog-fill{height:100%;border-radius:2px;background:var(--uw-blue);}
+.dcard-weekly-donor{font-size:11px;color:var(--uw-green);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.dcard-weekly-donor::before{content:'↑';font-size:10px;}
+.dcard-btn{width:100%;padding:8px;background:var(--uw-blue);color:white;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Palanquin',sans-serif;transition:background .15s;}
+.dcard-btn:hover{background:var(--uw-blue-mid);}
+
+/* tag colors */
+.te{background:var(--uw-blue-light);color:var(--uw-blue);}
+.th{background:var(--uw-red-light);color:var(--uw-red);}
+.tho{background:var(--uw-gold-light);color:#92620a;}
+.tf{background:var(--uw-green-light);color:var(--uw-green);}
+.tv{background:var(--uw-purple-light);color:var(--uw-purple);}
+
+.page-footer{text-align:center;padding:1.75rem 2.5rem;font-size:12.5px;color:var(--muted);border-top:1px solid var(--border-light);background:var(--white);}
+.page-footer strong{color:var(--uw-blue);}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+  PAGE 1: BROWSE
+══════════════════════════════════════ -->
+<div class="page active" id="page-browse">
+  <!-- cobrand -->
+  <div class="cobrand-bar">
+    <div class="cb-left">
+      <div class="uw-logo-wrap"><div class="uw-circle"><div class="uw-circle-inner"></div></div><div class="uw-name">United Way<small>NORTHEAST FLORIDA</small></div></div>
+      <div class="cb-div"></div>
+      <span class="c3s-sm">C3S<span>.ai</span></span>
+    </div>
+    <div class="cb-right">GIVING PLATFORM · NORTHEAST FLORIDA</div>
+  </div>
+
+  <!-- weekly donor ticker -->
+  <div class="ticker-bar">
+    <div class="ticker-label"><span class="ticker-dot"></span>This Week's Donors</div>
+    <div class="ticker-track">
+      <div class="ticker-inner" id="ticker-inner">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-logo" onclick="goTo('page-browse')">C3S<span>.ai</span><span class="nav-pipe"> | </span><span class="nav-uw">United Way NEFL</span></div>
+    <div class="nav-actions">
+      <button class="nav-admin" onclick="goTo('page-admin')">+ Admin</button>
+      <button class="nav-admin" style="border-color:var(--uw-red);color:var(--uw-red);" onclick="goTo('page-report')">📊 Report</button>
+      <button class="nav-cta">Sign in</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="ey-dot"></span>United Way Northeast Florida · Giving Platform</div>
+    <h1>Give directly to <em>real neighbors</em> in need.</h1>
+    <p>Browse verified profiles, choose who you'd like to support, and make a secure one-time or recurring donation. 100% goes directly to the recipient.</p>
+  </div>
+
+  <!-- 5-stat bar -->
+  <div class="stats-wrap">
+    <div class="stats-inner">
+      <div class="stat-block"><div class="stat-num"><span>1,247</span></div><div class="stat-desc">Lives supported</div></div>
+      <div class="stat-block"><div class="stat-num">$<span>842K</span></div><div class="stat-desc">Total raised this year</div></div>
+      <div class="stat-block"><div class="stat-num"><span>3,891</span></div><div class="stat-desc">Active donors</div></div>
+      <div class="stat-block"><div class="stat-num">$<span>12.4K</span></div><div class="stat-desc">Raised this week</div></div>
+      <div class="stat-block"><div class="stat-num"><span>138</span></div><div class="stat-desc">New donors this month</div></div>
+    </div>
+  </div>
+
+  <!-- Amount raised by category progress strip -->
+  <div class="progress-strip">
+    <span class="ps-label">Raised by category:</span>
+    <div class="ps-item"><span class="ps-cat">🎓 Education</span><div class="ps-bar-wrap"><div class="ps-bar" style="background:var(--uw-blue);width:72%"></div></div><span class="ps-amt" style="color:var(--uw-blue)">$218K</span></div>
+    <div class="ps-item"><span class="ps-cat">🏥 Health</span><div class="ps-bar-wrap"><div class="ps-bar" style="background:var(--uw-red);width:58%"></div></div><span class="ps-amt" style="color:var(--uw-red)">$176K</span></div>
+    <div class="ps-item"><span class="ps-cat">🏠 Housing</span><div class="ps-bar-wrap"><div class="ps-bar" style="background:#92620a;width:48%"></div></div><span class="ps-amt" style="color:#92620a">$145K</span></div>
+    <div class="ps-item"><span class="ps-cat">🥗 Food</span><div class="ps-bar-wrap"><div class="ps-bar" style="background:var(--uw-green);width:38%"></div></div><span class="ps-amt" style="color:var(--uw-green)">$116K</span></div>
+    <div class="ps-item"><span class="ps-cat">🎖️ Veterans</span><div class="ps-bar-wrap"><div class="ps-bar" style="background:var(--uw-purple);width:62%"></div></div><span class="ps-amt" style="color:var(--uw-purple)">$187K</span></div>
+  </div>
+
+  <!-- Filter + sort -->
+  <div class="filter-section">
+    <span class="filter-label">Category:</span>
+    <button class="chip cat-all active" onclick="filterCards(this,'all')">All</button>
+    <button class="chip cat-ed" onclick="filterCards(this,'ed')">🎓 Education</button>
+    <button class="chip cat-he" onclick="filterCards(this,'he')">🏥 Health</button>
+    <button class="chip cat-ho" onclick="filterCards(this,'ho')">🏠 Housing</button>
+    <button class="chip cat-fo" onclick="filterCards(this,'fo')">🥗 Food</button>
+    <button class="chip cat-ve" onclick="filterCards(this,'ve')">🎖️ Veterans</button>
+    <div class="filter-right">
+      <select class="sort-select" onchange="sortCards(this.value)">
+        <option value="default">Sort: Featured</option>
+        <option value="pct-hi">Most funded</option>
+        <option value="pct-lo">Needs most help</option>
+        <option value="raised">Amount raised</option>
+      </select>
+      <div class="search-box">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search stories…" oninput="searchCards(this.value)"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-section">
+    <div class="grid-header">
+      <span class="grid-title">People to support</span>
+      <span class="grid-count" id="grid-count">Showing 10 of 1,247</span>
+    </div>
+    <div class="donor-grid" id="donor-grid">
+      <!-- populated by JS -->
+    </div>
+  </div>
+  <div class="page-footer"><strong>100%</strong> of every donation goes directly to the recipient · United Way NEFL covers all platform fees · Payments secured by PayPal</div>
+</div>
+
+
+<script>
+/* ── DATA ── */
+const profiles = [
+  {id:1,name:'Marcus T.',cat:'ed',catLabel:'Education',emoji:'🎓',loc:'Jacksonville, FL',blurb:'First-generation nursing student needing tuition and textbook support to finish his degree.',goal:2000,raised:1200,weekly:true,weeklyAmt:320,tagCls:'te',bg:'linear-gradient(135deg,var(--uw-blue-light),#b3cef0)',catColor:'Housing support',deadline:'July 31, 2026',donors:47,story:'Marcus is the first in his family to attend college. A working single dad, he juggles night shifts at a local grocery store with full-time coursework in the RN program at Florida State College at Jacksonville. His goal is clear: graduate debt-free, serve his community as a nurse, and show his daughter that anything is possible.'},
+  {id:2,name:'Diane & Ray K.',cat:'he',catLabel:'Health',emoji:'🏥',loc:'Jacksonville, FL',blurb:'Elderly couple with mounting medical bills after Ray\'s stroke. Insurance covered only part of rehab.',goal:6000,raised:4100,weekly:false,weeklyAmt:0,tagCls:'th',bg:'linear-gradient(135deg,var(--uw-red-light),#f5b3b3)',catColor:'Health support',deadline:'June 15, 2026',donors:89,story:'Ray suffered a severe ischemic stroke in February. After 6 weeks of in-patient rehab, he returned home but requires outpatient physical and speech therapy that their Medicare supplement refuses to cover. Diane, 72, is his full-time caregiver while managing her own heart condition. Every dollar raised pays directly for Ray\'s therapy sessions.'},
+  {id:3,name:'Sophia L.',cat:'ho',catLabel:'Housing',emoji:'🏠',loc:'Jacksonville, FL',blurb:'Single mother of two who lost her apartment in a fire. Working toward stable housing.',goal:3500,raised:900,weekly:true,weeklyAmt:185,tagCls:'tho',bg:'linear-gradient(135deg,var(--uw-gold-light),#fde4a0)',catColor:'Housing support',deadline:'June 30, 2026',donors:23,story:'Sophia is a single mother of two young children who lost her apartment in a devastating fire earlier this year. She and her kids spent the first two months in an emergency shelter while she searched for stable housing. She currently works part-time as a home health aide and studies for her LPN license on weekends. Help her secure a deposit and first month\'s rent on a new apartment.'},
+  {id:4,name:'The Rivera Family',cat:'fo',catLabel:'Food & Nutrition',emoji:'🥗',loc:'Jacksonville, FL',blurb:'Family of five facing food insecurity after job loss. Working with local pantry but need support.',goal:800,raised:650,weekly:false,weeklyAmt:0,tagCls:'tf',bg:'linear-gradient(135deg,var(--uw-green-light),#a5d6a7)',catColor:'Food & Nutrition',deadline:'May 31, 2026',donors:62,story:'Carlos Rivera was laid off from his warehouse job of 11 years when the facility closed. His wife Lucinda works part-time, but with three school-age children and a grandmother living with them, the family\'s grocery budget simply doesn\'t stretch far enough. They visit the local food pantry weekly but need supplemental support for fresh produce and protein.'},
+  {id:5,name:'James W.',cat:'ve',catLabel:'Veterans',emoji:'🎖️',loc:'Jacksonville, FL',blurb:'Army veteran navigating PTSD and housing instability. Seeking counseling and rental assistance.',goal:4000,raised:2800,weekly:true,weeklyAmt:410,tagCls:'tv',bg:'linear-gradient(135deg,#F0E8FF,#d4b8f0)',catColor:'Veterans support',deadline:'August 31, 2026',donors:76,story:'James served two tours in Afghanistan and returned home with severe PTSD and a traumatic brain injury. After a difficult few years, he connected with the VA but is still on a waiting list for housing assistance. He needs help with three months of rental assistance while he completes his counseling program and gets back on his feet. James wants to become a peer support specialist to help other veterans.'},
+  {id:6,name:'Amara O.',cat:'ed',catLabel:'Education',emoji:'📚',loc:'Jacksonville, FL',blurb:'Refugee student with exceptional grades pursuing a computer science scholarship at community college.',goal:1500,raised:500,weekly:false,weeklyAmt:0,tagCls:'te',bg:'linear-gradient(135deg,var(--uw-blue-light),#b3cef0)',catColor:'Education',deadline:'August 15, 2026',donors:31,story:'Amara arrived in Jacksonville from Somalia three years ago with her mother and two younger siblings. She earned a 3.98 GPA in high school and was accepted into the Computer Science program at Florida State College at Jacksonville. A small scholarship covers tuition, but she needs help with her laptop, internet access, textbooks, and transportation. Her dream is to become a software engineer.'},
+  {id:7,name:'Dr. Keisha B.',cat:'he',catLabel:'Health',emoji:'🩺',loc:'Jacksonville, FL',blurb:'Community doctor battling cancer while running a free clinic for uninsured residents.',goal:8000,raised:5200,weekly:true,weeklyAmt:550,tagCls:'th',bg:'linear-gradient(135deg,var(--uw-red-light),#f5b3b3)',catColor:'Health support',deadline:'September 30, 2026',donors:112,story:'Dr. Keisha has operated a free medical clinic in the Northside neighborhood for 12 years. Last fall she was diagnosed with Stage 2 breast cancer. Her treatment costs are draining the clinic\'s operating reserve, putting both her care and her patients\' access to healthcare at risk. Your donation directly supports Dr. Keisha\'s treatment and keeps the clinic open for over 300 uninsured patients who rely on it.'},
+  {id:8,name:'The Nguyen Family',cat:'ho',catLabel:'Housing',emoji:'🏡',loc:'Jacksonville, FL',blurb:'Vietnamese immigrant family of four facing eviction after predatory landlord doubled their rent.',goal:5000,raised:2100,weekly:false,weeklyAmt:0,tagCls:'tho',bg:'linear-gradient(135deg,var(--uw-gold-light),#fde4a0)',catColor:'Housing support',deadline:'July 15, 2026',donors:44,story:'Minh and Lan Nguyen immigrated to Jacksonville 8 years ago. They have two children in elementary school and Minh works as a mechanic while Lan is a home healthcare aide. Their landlord doubled the rent with 30 days notice — a tactic that is unfortunately legal in Florida. They are working with a housing attorney but need funds to secure a new apartment deposit and moving costs while the case is reviewed.'},
+  {id:9,name:'Rosa & Miguel D.',cat:'fo',catLabel:'Food & Nutrition',emoji:'🌽',loc:'Jacksonville, FL',blurb:'Elderly couple living on fixed income; facing rising grocery costs and transportation barriers.',goal:600,raised:480,weekly:false,weeklyAmt:0,tagCls:'tf',bg:'linear-gradient(135deg,var(--uw-green-light),#a5d6a7)',catColor:'Food & Nutrition',deadline:'May 31, 2026',donors:38,story:'Rosa (78) and Miguel (81) Dominguez have lived in the same Northeast Jacksonville neighborhood for 40 years. Their combined Social Security income of $1,640/month barely covers rent and utilities. With no car and the nearest grocery store 3 miles away, they rely on a volunteer-driven meal program that recently reduced its service days. Your support pays for grocery delivery and supplemental meals.'},
+  {id:10,name:'Sgt. Patricia H.',cat:'ve',catLabel:'Veterans',emoji:'🏅',loc:'Jacksonville, FL',blurb:'Female Marine sergeant, single parent, navigating VA backlog for disability benefits.',goal:5500,raised:3900,weekly:true,weeklyAmt:620,tagCls:'tv',bg:'linear-gradient(135deg,#F0E8FF,#d4b8f0)',catColor:'Veterans support',deadline:'October 31, 2026',donors:98,story:'Patricia served 12 years as a Marine Corps logistics sergeant, including deployments to Iraq and Bahrain. She returned home with hearing loss and a spinal injury sustained in a vehicle accident during her service. Her VA disability claim was filed 14 months ago and remains in the backlog. In the meantime, she\'s supporting her 9-year-old son on a part-time salary. Your donation helps cover rent, medication co-pays, and childcare while her claim is processed.'},
+];
+
+const weeklyDonors = [
+  {name:'C. Washington',amt:'$2,500',recipient:'Sgt. Patricia H.'},
+  {name:'Anonymous',amt:'$1,800',recipient:'Diane & Ray K.'},
+  {name:'R. Fitzgerald',amt:'$1,200',recipient:'Marcus T.'},
+  {name:'L. & T. Okafor',amt:'$900',recipient:'Amara O.'},
+  {name:'Anonymous',amt:'$750',recipient:'James W.'},
+  {name:'J. Martinez',amt:'$500',recipient:'Sophia L.'},
+  {name:'P. Chen',amt:'$400',recipient:'The Rivera Family'},
+  {name:'Anonymous',amt:'$350',recipient:'Dr. Keisha B.'},
+  {name:'The Kim Family',amt:'$300',recipient:'The Nguyen Family'},
+  {name:'G. Patel',amt:'$250',recipient:'Rosa & Miguel D.'},
+  {name:'M. Thompson',amt:'$200',recipient:'Marcus T.'},
+  {name:'Anonymous',amt:'$150',recipient:'Sophia L.'},
+];
+
+let currentFilter = 'all';
+
+/* ── TICKER ── */
+function buildTicker() {
+  const inner = document.getElementById('ticker-inner');
+  // duplicate for seamless loop
+  const items = [...weeklyDonors, ...weeklyDonors].map(d =>
+    `<span class="ticker-item"><span class="ti-amt">${d.amt}</span> <span style="font-weight:400">${d.name}</span> <span class="ti-sep">→</span> <span style="color:var(--mid)">${d.recipient}</span> <span class="ti-sep">·</span></span>`
+  ).join('');
+  inner.innerHTML = items;
+}
+
+/* ── DONOR GRID ── */
+function buildGrid(filter='all', sort='default', search='') {
+  let filtered = profiles.filter(p => {
+    if(filter !== 'all') {
+      const map = {ed:'ed',he:'he',ho:'ho',fo:'fo',ve:'ve'};
+      const catMap = {'ed':['ed'],'he':['he'],'ho':['ho'],'fo':['fo'],'ve':['ve']};
+      if(!catMap[filter] || !catMap[filter].includes(p.cat)) return false;
+    }
+    if(search) {
+      const q = search.toLowerCase();
+      return p.name.toLowerCase().includes(q) || p.blurb.toLowerCase().includes(q) || p.catLabel.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  if(sort==='pct-hi') filtered.sort((a,b)=>(b.raised/b.goal)-(a.raised/a.goal));
+  else if(sort==='pct-lo') filtered.sort((a,b)=>(a.raised/a.goal)-(b.raised/b.goal));
+  else if(sort==='raised') filtered.sort((a,b)=>b.raised-a.raised);
+
+  const grid = document.getElementById('donor-grid');
+  document.getElementById('grid-count').textContent = `Showing ${filtered.length} of 1,247`;
+
+  grid.innerHTML = filtered.map(p => {
+    const pct = Math.round(p.raised/p.goal*100);
+    return `<div class="dcard" onclick="openProfile(${p.id})">
+      <div class="dcard-img" style="background:${p.bg}">
+        ${p.emoji}
+        ${p.weekly ? `<span class="dcard-weekly">🔥 Top this week</span>` : ''}
+      </div>
+      <div class="dcard-body">
+        <div class="dcard-name">${p.name}</div>
+        <span class="dcard-tag ${p.tagCls}">${p.catLabel}</span>
+        <div class="dcard-blurb">${p.blurb}</div>
+        <div class="dcard-progress">
+          <div class="dcard-prog-row"><span class="dcard-prog-label">$${p.raised.toLocaleString()} of $${p.goal.toLocaleString()}</span><span class="dcard-prog-pct">${pct}%</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+        </div>
+        ${p.weekly ? `<div class="dcard-weekly-donor">+$${p.weeklyAmt} raised this week</div>` : ''}
+        <button class="dcard-btn">View profile &amp; donate</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterCards(btn, cat) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = cat;
+  buildGrid(cat);
+}
+
+function sortCards(val) { buildGrid(currentFilter, val); }
+function searchCards(q) { buildGrid(currentFilter, 'default', q); }
+/* ── STUBS (other pages are not part of this standalone file) ── */
+function goTo(id) { window.scrollTo(0,0); }
+function openProfile(id) { /* profile page not included */ }
+
+/* ── INIT ── */
+buildTicker();
+buildGrid();
+</script>
+</body>
+</html>

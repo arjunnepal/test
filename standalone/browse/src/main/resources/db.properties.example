@@ -1,0 +1,7 @@
+# Copy to db.properties for local dev. Deployed environments should use env vars or -D flags.
+
+jdbc.url=jdbc:mysql://db-host:3306/admin?sslMode=REQUIRED&serverTimezone=UTC&characterEncoding=UTF-8
+jdbc.user=browse_app
+jdbc.password=CHANGE_ME
+jdbc.pool.maxSize=10
+jdbc.pool.minIdle=2

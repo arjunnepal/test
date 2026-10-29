@@ -1,0 +1,143 @@
+<%--
+  Top half of the shared page shell. Each page includes this after declaring:
+    String pageTitle, crumb, activeSidebar, activeTab, message   (activeTab null = no tab bar)
+  Miss one and the page won't compile. footer.jspf closes what this opens.
+--%>
+<%@ page import="com.c3s.ai.admin.web.*, com.c3s.ai.admin.service.SidebarStatsCache, com.c3s.ai.admin.util.HtmlUtil, com.c3s.ai.admin.auth.AuthSession" %>
+<%
+    String ctx = request.getContextPath();
+    String currentUser = AuthSession.currentUser(request);
+
+    String userInitials = "?";
+    if (currentUser != null && !currentUser.isBlank()) {
+        String _u = currentUser.trim();
+        userInitials = (_u.length() >= 2 ? _u.substring(0, 2) : _u.substring(0, 1)).toUpperCase();
+    }
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><%= HtmlUtil.esc(pageTitle) %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&amp;family=Palanquin:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=10"/>
+</head>
+<body>
+
+<div class="cobrand-bar">
+    <div class="cb-left">
+        <div class="uw-logo-wrap">
+            <div class="uw-circle"><div class="uw-circle-inner"></div></div>
+            <div class="uw-name">United Way<small>NORTHEAST FLORIDA</small></div>
+        </div>
+        <div class="cb-div"></div>
+        <span class="c3s-sm">C3S<span>.ai</span></span>
+    </div>
+    <div class="cb-right">ADMIN DASHBOARD</div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-icon">&#10003;</div><span id="toast-msg">Saved</span></div>
+
+<%-- archive confirm modal - wired in admin-common.js --%>
+<div class="modal-overlay" id="confirm-modal">
+    <div class="modal-card">
+        <div class="modal-title" id="confirm-modal-title">Archive?</div>
+        <div class="modal-body" id="confirm-modal-body">This removes it from the active list.</div>
+        <div class="modal-actions">
+            <button type="button" class="tb-btn tb-btn-outline" id="confirm-modal-cancel">Cancel</button>
+            <button type="button" class="tb-btn tb-btn-danger" id="confirm-modal-confirm">Archive</button>
+        </div>
+    </div>
+</div>
+
+<%-- ?v=N is bumped by hand when the file changes --%>
+<script src="<%= ctx %>/js/admin-common.js?v=5" defer="defer"></script>
+
+<div class="admin-wrap">
+
+    <div class="sidebar">
+        <div class="sb-logo">
+            <div class="sb-logo-main">C3S<span>.ai</span> Admin</div>
+            <div class="sb-logo-sub">Giving Platform Dashboard</div>
+            <div class="sb-uw-logo">
+                <div class="sb-uw-dot"></div>
+                <div class="sb-uw-name">United Way<br/>Northeast Florida</div>
+            </div>
+        </div>
+
+        <div class="sb-section">Profiles</div>
+        <a class="sb-link<%= "add".equals(activeSidebar) ? " active" : "" %>" href="<%= ctx %>/profile">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>Add new profile
+        </a>
+        <a class="sb-link<%= "list".equals(activeSidebar) ? " active" : "" %>" href="<%= ctx %>/profiles">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>All profiles
+        </a>
+
+        <hr class="sb-divider"/>
+        <div class="sb-section">Configuration</div>
+        <a class="sb-link<%= "categories".equals(activeSidebar) ? " active" : "" %>" href="<%= ctx %>/categories">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5.586a1 1 0 01.707.293l6.414 6.414a1 1 0 010 1.414l-7.586 7.586a1 1 0 01-1.414 0L3.293 12.293A1 1 0 013 11.586V6a3 3 0 013-3z"/></svg>Categories
+        </a>
+        <a class="sb-link<%= "settings".equals(activeSidebar) ? " active" : "" %>" href="<%= ctx %>/allocations">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Allocation settings
+        </a>
+
+        <hr class="sb-divider"/>
+        <div class="sb-section">Reports</div>
+        <button type="button" class="sb-link" data-goto="page-report">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Financial report
+        </button>
+        <button type="button" class="sb-link" data-goto="page-donors">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Donors
+        </button>
+
+        <div class="sb-stats">
+            <div class="sb-stat"><div class="sb-stat-num"><span><%= HtmlUtil.num(SidebarStatsCache.INSTANCE.publishedProfiles()) %></span></div><div class="sb-stat-lbl">Active profiles</div></div>
+            <div class="sb-stat"><div class="sb-stat-num">$<span><%= HtmlUtil.num(SidebarStatsCache.INSTANCE.raisedTotal()) %></span></div><div class="sb-stat-lbl">Raised this year</div></div>
+        </div>
+
+        <div class="sb-bottom">
+            <div class="sb-user">
+                <div class="sb-avatar-wrap"><%= HtmlUtil.esc(userInitials) %></div>
+                <div>
+                    <div class="sb-user-name"><%= currentUser != null ? HtmlUtil.esc(currentUser) : "Not signed in" %></div>
+                    <div class="sb-user-role">Admin</div>
+                </div>
+            </div>
+            <% if (currentUser != null) { %>
+                <form method="post" action="<%= ctx %>/logout" class="sb-logout-form">
+                    <input type="hidden" name="_csrf" value="<%= HtmlUtil.esc(Csrf.tokenFor(request)) %>"/>
+                    <button type="submit" class="sb-logout" title="Sign out">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        Sign out
+                    </button>
+                </form>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="page-main">
+
+        <div class="topbar">
+            <div class="topbar-title">Admin &nbsp;&#8250;&nbsp; <span class="topbar-crumb"><%= HtmlUtil.esc(crumb) %></span></div>
+            <div class="topbar-actions">
+                <button type="button" class="tb-btn tb-btn-outline" data-goto="page-report">&#128202; Report</button>
+                <button type="button" class="tb-btn tb-btn-outline" data-goto="page-browse">&#8592; Back to site</button>
+                <a class="tb-btn tb-btn-primary" href="<%= ctx %>/profile">+ Add profile</a>
+            </div>
+        </div>
+
+        <div class="a-content">
+
+            <% if (activeTab != null && !activeTab.isEmpty()) { %>
+                <div class="tab-nav">
+                    <a class="tn<%= "add".equals(activeTab) ? " active" : "" %>" href="<%= ctx %>/profile">Add new profile</a>
+                    <a class="tn<%= "list".equals(activeTab) ? " active" : "" %>" href="<%= ctx %>/profiles">All profiles</a>
+                    <a class="tn<%= "settings".equals(activeTab) ? " active" : "" %>" href="<%= ctx %>/allocations">Allocation settings</a>
+                </div>
+            <% } %>
+
+            <% if (message != null && !message.isEmpty()) { %>
+                <span class="flash-toast" data-msg="<%= HtmlUtil.esc(message) %>"></span>
+            <% } %>

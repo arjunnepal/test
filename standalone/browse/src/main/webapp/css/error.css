@@ -1,0 +1,10 @@
+/* Error page. Loaded after browse.css, which has the colours and fonts. */
+
+/* ── ERROR PAGE ── */
+.err-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2.5rem;}
+.err-card{background:var(--white);border:1px solid var(--border-light);border-radius:16px;padding:2.5rem;max-width:440px;text-align:center;box-shadow:0 14px 36px rgba(0,63,135,.10);}
+.err-icon{width:44px;height:44px;border-radius:50%;background:var(--uw-red-light);color:var(--uw-red);font-family:'Antonio',sans-serif;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.err-card h1{font-family:'Antonio',sans-serif;font-size:24px;font-weight:700;margin-bottom:8px;color:var(--dark);}
+.err-card p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:18px;}
+.err-btn{display:inline-block;padding:9px 18px;background:var(--uw-blue);color:var(--white);border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;}
+.err-btn:hover{background:var(--uw-blue-mid);}
